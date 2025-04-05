@@ -718,29 +718,34 @@ cache的访问trace依次为：
 !!!tip
     这里给出一些**可能有用**的建议：
 
-    - 在访问cache之前，你需要正确的初始化所有的cache line, 换句话说，你需要把所有的字段全部初始化为0
-    - 你可以假设，对于单个cache的访问，不会出现跨两个cache line的情况，换句话说，你可以**忽略cacheAccess函数中的第三个参数**
-    - 对于`M`类型的访问，你可以等价的将他看作为**一次读取和一次写入**
-    - 需要注意的是，L2和L3 cache会同时包含指令和数据
-    - 你可以假设指令和数据不会访问同一块内存，换句话说，你可以假设L2中的某个cache line不会同时出现在L1D cache和L1I cache中
-    - 本次实验仅要求模拟cache访问，因此你**无需关心具体的写入数据**
-    - 你可以使用位运算相关技巧从传入的地址中提取出tag，set，block等信息
-    - 你可以使用位运算相关技巧根据tag，set，block的信息拼接出内存地址
-    - 在每次访问某个cache时，你需要对这个cache的三个统计量（hit, miss, eviction）进行更新，包括对L1的读取/写入，对L2的读取，对L3的读取，L1写回脏数据到L2，L2写回到L3等
-    - 在加载一条cache line时，你需要在当前cache set中找出一条可用的cache line, 换句话说，你需要找到**一条valid字段为false**的cache line。如果有多条可用的cache line，你需要选择**下标最小的一个**
-    - 你需要**严格使用LRU算法**来找到需要evict的cache line
-    - 你可以简单使用循环的方式来暴力实现LRU，而不考虑复杂度的问题，为此，你可以维护一个全局时钟并且仔细的设置cache line结构中的latest_used字段
-    - 在evict一条cache line时，你需要考虑dirty字段的影响，换句话说，如果dirty为true，你需要在加载新的cache line之前，将旧的cache line写回到下一级cache（或内存）。如果dirty为false，你可以简单的将这条cache line丢弃
-    - 你在进行evict的时候，无需对evict的cache line的LRU字段进行改动
-    - 你需要在每次成功访问一条cache line之后设置LRU字段，成功访问指写入/读取命中，或者是**从下级缓存加载了相应的cache line之后**的读取/写入操作
+    - 在访问cache之前，你需要正确的初始化所有的cache line, 换句话说，你需要把所有的字段全部初始化为0。
+    - 你可以假设，对于单个cache的访问，不会出现跨两个cache line的情况，换句话说，你可以**忽略cacheAccess函数中的第三个参数**。
+    - 对于`M`类型的访问，你可以等价的将他看作为**一次读取和一次写入**。
+    - 需要注意的是，L2和L3 cache会**同时包含指令和数据**（unified），你需要仔细思考其产生的影响，**尤其是在back invalidation的时候**。
+    - 你可以假设指令和数据不会访问同一块内存，换句话说，你可以假设L2中的某个cache line**不会同时出现**在L1D cache和L1I cache中。
+    - 本次实验仅要求模拟cache访问，因此你**无需关心具体的写入数据**。
+    - 你可以使用位运算相关技巧从传入的地址中提取出tag，set，block等信息。
+    - 你可以使用位运算相关技巧根据tag，set，block的信息拼接出内存地址。
+    - 需要注意的是，由于每层的cache配置不同，因此相同地址在不同层的cache解析得到的(tag, set, block)也不同，你需要在实现的时候考虑到这一点。
+    - 在每次访问某个cache时，你需要对这个cache的三个统计量（hits, misses, evictions）进行更新，包括对**L1的读取/写入，对L2的读取，对L3的读取，L1写回脏数据到L2，L2写回到L3**等。
+    - 实际上，block字段在本次实验中**可以忽略**，你需要自己分析并理解可以这么做的原因。
+    - 在加载一条cache line时，你需要在当前cache set中找出一条可用的cache line。 换句话说，你需要找到**一条valid字段为false**的cache line。如果有多条可用的cache line，你需要选择**下标最小的一个**。
+    - 如果不存在invalid的cache line来容纳新的数据，这时候你需要**严格使用LRU算法**来找到需要evict的cache line。
+    - 你可以简单使用循环的方式来暴力实现LRU，而不考虑复杂度的问题，为此，你可以维护一个全局时钟并且仔细的设置cache line结构中的latest_used字段。
+    - 你可以自由的选择全局时钟的实现方式，比如使用**全局计数器作逻辑时钟**，或者**使用标准库的`time()`等函数精确化时钟**，测试**不会考察**你的全局时钟实现方式。
+    - 在evict一条cache line时，你需要考虑dirty字段的影响，换句话说，如果dirty为true，你需要在加载新的cache line之前，将旧的cache line写回到下一级cache（或内存）。如果dirty为false，你可以简单的将这条cache line丢弃。
+    - 你在进行evict的时候，**无需对evict的cache line的LRU字段进行改动**（实际上大部分情况这个cache line会直接被新的数据覆盖，届时LRU将被设置）。
+    - 你需要在每次**成功访问**一条cache line之后设置LRU字段。成功访问包括：写入/读取**命中**，或者是**从下级缓存加载了相应的cache line之后**的读取/写入操作。
     - 在发生conflict miss时，你需要严格遵守**先fetch，后evict**的过程，即先访问下一级缓存或者内存得到数据所在的cache line，再选择需要evict的cache line，这**可能会影响LRU设置的顺序**。考虑一个例子，假如某个时刻全局时钟为10，L1发生conflict miss，L2 hit，你需要首先访问L2，由于L2 hit，设置L2中对应的cache line的LRU为10，然后将cache line返回给L1，假设L1需要evict的cache line是dirty的，你需要将其首先写回L2，这是100% hit的（为什么？），因此设置L2中对应的cache line的LRU为11，最后将需要的cache line放置在L1经evict空出的位置上，然后设置对应的LRU为12
-    - 本次实验要求上一级cache的内容一定存在于下一级cache中，这叫做inclusive policy。你需要时刻保证这一条性质，并且好好利用它
-    - 受限于inclusive policy，写回脏数据的过程实际上是100% hit的，你需要合理的安排代码顺序实现这一点
-    - 当你处理write miss时，需要首先访问下一级缓存（或者内存）获取cache line，然后再写入这条cache line。在此过程中，你需要仔细思考对于下一级缓存应该**以什么类型进行访问**
-    - 如果你需要从L2 evict某个cache line，假设这个cache line也存在于L1, 你需要将L1中对应的cache line也进行evict，这个过程叫做back invalidation。如果L1中的数据是dirty的，你需要首先将其写回L2。
-    - 如果你需要从L3 evict一个cache line，你也需要分别将L1和L2中对应的cache line进行evict。在此过程中，你需要好好思考evict的顺序，以保证inclusive的性质。
-    - 你在back invalidation的时候可能需要evict上级cache的cache line，但是**无需更改evict的计数**
-    - 注意，不同级别的缓存cache line的大小可能是不一样，你在设计代码的时候需要考虑这会产生哪些影响，并仔细的处理相关流程
+    - 在本次实验中，你需要将evictions的值理解为**发生conflict miss的次数**，而**不是cache line发生evict的次数**，这是一个命名上的失误。基于这一点，evictions的值需要在发生**conflict miss**时（即通过LRU算法evict cache line时）进行修改，而**无需在back invalidation的过程中evict cache line时进行修改**。
+    - 根据上一条，write back产生的时机实际上**和evict的发生时刻强相关**，**和evictions的修改时机无关**。简单来说，你**需要在每次evict一条cache line时判断是否需要触发写回下一级的过程**。
+    - 本次实验要求上一级cache的内容一定存在于下一级cache中，这叫做inclusive policy。你需要时刻保证这一条性质，并且好好利用它。
+    - 受限于inclusive policy，写回脏数据的过程实际上是**100% hit**的，你需要合理的安排代码顺序实现这一点。
+    - 当你处理write miss时，需要首先访问下一级缓存（或者内存）以获取cache line，然后再写入这条cache line。在此过程中，你需要仔细思考对于下一级缓存应该**以什么类型进行访问**
+    - 如果你需要从L2 evict某个cache line，假设这个cache line也存在于L1, 那么你需要首先将L1中对应的cache line进行evict，这个过程叫做back invalidation。如果L1中的数据是dirty的，你需要首先将其写回L2，并且需要仔细处理L2的evict过程。
+    - 如果你需要从L3 evict一个cache line，你也需要分别将L1和L2中对应的cache line进行evict。在此过程中，你需要**好好思考evict的顺序**，以保证inclusive的性质。
+    - 注意，不同级别的缓存cache line的大小可能不一样，你在设计代码的时候需要考虑这会产生哪些影响，并仔细的处理相关流程。
+    - 实际上，这个lab中的cache的访问是一个十分优雅的过程，你可以分析其中的性质，并高度的凝练你的代码，参考解法仅包括大约**200-300**行代码。
 
 ### 本地测试
 
