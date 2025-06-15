@@ -47,18 +47,16 @@ Enjoy!
 **Textbook**: Randal E. Bryant and David R. O'Hallaron, [Computer Systems: A Programmer's Perspective](https://csapp.cs.cmu.edu/), Third Edition, Pearson, 2016
 
 ## Announcements
-!!! info "Announcements for Week 15 :loudspeaker:"
-
-    Please note the deadline and release date of labs:
-    
-    - Malloclab is due next Sunday (2025-06-03 23:59). Don't forget to submit. :warning:
-    
-    - CacheLab is planned to released this week. Enjoy! :smile:
-    
-    **DON'T CHEAT**. Big Brother is watching you!
-    
-    ~ XJTU-ICS Course Staff
-
+<!-- !!! info "Announcements for Week 15 :loudspeaker:" -->
+<!---->
+<!--     Please note the deadline and release date of labs: -->
+<!--      -->
+<!--     - Malloclab is due next Sunday (2025-06-03 23:59). Don't forget to submit. :warning: -->
+<!--      -->
+<!--     **DON'T CHEAT**. Big Brother is watching you! -->
+<!--      -->
+<!--     ~ XJTU-ICS Course Staff -->
+<!---->
 <!-- !!! info "Announcements for Week 6 :loudspeaker:" -->
 <!---->
 <!--     Please note the deadline and release date of labs: -->
