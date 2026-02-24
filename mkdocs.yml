@@ -51,6 +51,7 @@ plugins:
   - open-in-new-tab
   - macros:
       module_name: scripts/macros
+  - mike
 
 # Extensions
 markdown_extensions:
@@ -85,7 +86,7 @@ markdown_extensions:
 
 extra:
   version:
-    # provider: mike
+    provider: mike
     alias: true
 extra_css:
   - stylesheets/custom.css
