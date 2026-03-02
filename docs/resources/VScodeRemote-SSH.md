@@ -1,91 +1,81 @@
 # VSCode Remote-SSH Setting
 
 ## VSCode安装
+
 [VSCode官网](https://code.visualstudio.com/)
 
 大家自行从官网找到适合自己本机系统与机器的Release进行下载安装，不做更多解释。
 
 ## VSCode Remote-SSH插件安装
+
 打开VSCode，你会看到如下的界面
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-1.png){ width=auto }
-</figure>
+![Image title](../assets/images/vscode/vscode-ssh-1.png)
 
 点击左侧”积木“按键，进入扩展商店，
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-2.png){ width=auto }
-</figure>
+![Image title](../assets/images/vscode/vscode-ssh-2.png)
 
-扩展商店中搜索Remote，安装排名第一的扩展Remote-SSH。
+扩展商店中搜索Remote，安装Remote-SSH。
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-3.png){ width=auto }
-</figure>
+## 配置远程服务器信息
 
-等待安装完成之后重新打开VSCode，你会看到一个小图标出现在侧边栏，这就是Remote-SSH
+等待安装完成之后重新打开VSCode，你会看到一个小图标出现在侧边栏，这就是Remote-SSH，点开这个小图标，左侧会出现一个REMOTES的列表，其中SSH一栏底下会显示目前存在的服务器配置（通常根据`~/.ssh/config`生成）：
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-4.png){ width=auto }
-</figure>
+![Image title](../assets/images/vscode/vscode-ssh-3.png)
 
-配置服务器远程连接
-安装好之后我们点击SSH上的”+“号，按下后会跳出一个框框提示我们输入ssh相关的命令，我们按照之前Linux服务器配置中的ssh命令填入，这里以3122151046-ics为例：
+如果SSH列表下没有目标服务器，可以将鼠标移到SSH一栏上，点击SSH上的`+`添加远程服务器，按下后会跳出一个框框提示我们输入ssh相关的命令，我们按照之前[ICS-SERVER配置中](./ICS-Server.md)的ssh命令填入，这里以2213112457-ics为例：
 
-ssh 3122151046-ics@x86.ics.xjtu-ants.net -p2291
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-4.png){ width=auto }
-</figure>
+![Image title](../assets/images/vscode/vscode-ssh-4.png)
 
-按下Enter后，会让我们选择configuration File，这里的意思不需要细究，我们点击最上面的默认配置文件即可
+![Image title](../assets/images/vscode/vscode-ssh-5.png)
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-5.png){ width=auto }
-</figure>
+按下Enter后，会让我们选择哪个ssh配置文件进行保存，一般选择第一个默认的即可
 
-这样我们就保存成功了我们的服务器相关信息。此时一般会跳出一个配置文件的相关信息，我们核对无误之后就关掉VSCode并重新打开
+![Image title](../assets/images/vscode/vscode-ssh-6.png)
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-6.png){ width=auto }
-</figure>
+这样我们就保存成功了我们的服务器相关信息。此时会发现左侧的SSH列表出现了新的条目，就是我们刚刚添加的服务器信息，可以点击SSH栏上的⚙图标进行查看
 
-连接远端服务器
-之前我们已经做好了相关的SSH配置，现在我们来尝试直接利用之前的配置来连接服务器。
+![Image title](../assets/images/vscode/vscode-ssh-7.png)
 
-重新开启VSCode，我们点开SSH发现出现了新的条目。点击对应用户名右侧文件夹按钮。
+其中Host的值是可以随意更改的，vscode默认Host和HostName相同，即服务器的域名，如果觉得域名太长，可以将Host修改为短小的名字，比如`icsserver`
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-7.png){ width=auto }
-</figure>
+![Image title](../assets/images/vscode/vscode-ssh-8.png)
 
-此时VSCode会新开一个窗口这个窗口会提醒你在框框内键入密码，你在需要在这个框框内键入服务器密码，键入后就可以连接服务器。
+!!!note
+    如果出现配置文件未生效等情况，可以尝试重启vscode
 
-（这里可能需要等待一会，因为需要在服务器端安装一些服务连接程序）
+## 连接至远程服务器
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-8.png){ width=auto }
-</figure>
+将鼠标移到左侧SSH列表的目标服务器栏目上，右侧会出现两个按钮，其中→表示在当前窗口内打开，另一个则是新开一个vscode窗口，选择其中一个并点击。如果没有设置密钥，VSCode会新开一个窗口提醒你在框框内键入密码，你在需要在这个框框内键入服务器密码，键入后就可以连接服务器。
 
-连接完成之后点击侧边栏最上面的文件夹按钮，显示”已经连到远程“说明连接成功！
+!!!note
+    vscode可能会提示你选择目标platform，选择linux即可，因为目标服务器的系统是linux
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-9.png){ width=auto }
-</figure>
+![Image title](../assets/images/vscode/vscode-ssh-9.png)
+
+
+!!!warning
+    注意这个密码一定是已经修改之后的密码，第一次登录时请**务必使用系统终端**进行登录
+
+!!!note
+    这里可能需要等待一会，因为需要在服务器端安装一些服务连接程序
+
+连接完成之后点击侧边栏最上面的文件夹按钮，成功连接后会显示connetcted to remote，同时左下角也会显示对应的远程服务器的名字（即之前设置的Host）
+
+![Image title](../assets/images/vscode/vscode-ssh-10.png)
 
 点击打开文件夹按钮，选择对应你要打开的文件夹，可以直接点击确定，此时会从你的home用户目录下打开。
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-1.png){ width=auto }
-</figure>
+![Image title](../assets/images/vscode/vscode-ssh-11.png)
 
-打开后，点击信任作者，你可以在右边的资源管理器栏中选择文件进行修改编辑，并且你还可以把他当做FTP文件服务器使用，可以直接把本地的文件直接拖拽到侧边栏文件目录中，即可完成本地文件上传到服务器对应目录下的操作。
+打开后，点击`trust folder & continue`，此时左边文件管理器会显示远程目录的内容，效果就像在本地开发一样，至此你就可以开始快乐的编辑与Coding！
 
-<figure markdown="span">
-  ![Image title](../assets/images/vscode-ssh-1.png){ width=auto }
-</figure>
+如果需要退出，点击左下角的`SSH: Host`字段，并在弹出的下拉框中点击`close remote connection`即可，后续再连接时，左侧列表会自动保存之前打开的远程目录，十分方便
 
-至此你就可以开始快乐的编辑与Coding~！
+![Image title](../assets/images/vscode/vscode-ssh-12.png)
+
+![Image title](../assets/images/vscode/vscode-ssh-13.png)
 
 !!! note
     VSCode还有很多强大的功能与插件，可玩性高，这里不再做过多的介绍，大家可以自行探索并寻求最高效的开发方式。
