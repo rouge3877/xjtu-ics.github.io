@@ -119,10 +119,13 @@ Enjoy!
 - Office Hours
     - Danfeng Shan: 16:00-18:00, Every Thursday
     - Hao Li: TBD
+    - TAs:
+
+{{read_office_hour_csv("docs/static/data/office_hour.csv")}}
 
 ## Schedule
 
-{{read_csv("docs/static/data/events.csv")}}
+{{read_schedule_csv("docs/static/data/events.csv")}}
 <!-- |  Week |     Date    | Lecture | Instructors | Reading | Labs |
 | :---: | :---------: | :-----: | :---------: | :-----: | :--: |
 |   1   | 2025-02-18  | Overview ( [:material-presentation-play: Slides](assets/slides/01-overview-class-rules.pdf){.md-button} ) | Hao Li && Danfeng Shan  |   1     |             |
