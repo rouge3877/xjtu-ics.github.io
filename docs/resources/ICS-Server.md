@@ -1,122 +1,164 @@
 # ICS-Server
 
-## 账号获取
-我们为每位课程内同学建立了账号，这些账号密码以如下的形式分发：
+## 服务器配置
 
-### 用户名和初始密码
+ICS课程团队准备了两台服务器，配置如下：
+
+- `icsserver`（main）：位于兴庆，域名`icsserver.netperf.cc`，端口`2220`
+
+- `vm-ics`（backup）：位于创新港，域名`igw.netperf.cc`，端口`2292`
+
+!!! note
+    由于某些原因，位于创新港的服务器无法访问外网（比如github等），只能访问交大内网，如需访问外网需要自行配置代理。同时，助教团队分发实验时也不会往第二台服务器分发。因此，建议大家**非必要不要选择第二台服务器**作为主力开发环境，仅用于备份或者紧急情况。
+
+!!! danger
+    严禁使用服务器进行挖矿或其他恶意占用服务器资源的行为，一经发现将进行**封号并严厉处罚**。
+
+## 用户名和初始密码
+
 用户名：你的学号加`-ics`
 
-密码：你的学号
+初始密码：你的学号
 
-例如：你的学号是2183311128，那么你的服务器用户名就是：`2183311128-ics`，密码为：`2183311128`。
+例如：你的学号是2213112457，那么你的服务器用户名就是：`2213112457-ics`，初始密码为：`2213112457`。
 
-!!! warning
-    为了防止信息泄露，首次登录输入初始密码后，服务器会强制登录用户修改密码。请同学们保管好自己修改后的密码，或者可自行尝试ssh密钥登录。如果你因为任何原因（新选课或者密码被同学恶意篡改）无法登陆ics服务器，请立刻联系助教进行处理。
+!!! danger
+    为了防止信息泄露，首次登录输入初始密码后，服务器会**强制登录用户修改密码**。请同学们保管好自己修改后的密码，或者可自行尝试ssh密钥登录。
 
-!!!note
-    第一次登陆请大家**一定使用系统终端**进行登陆，windows系统使用powershell，linux和macos系统使用自带的终端。在输入初始密码之后，系统终端会提示**WARNING: Your password has expired**和**Changing password for xxx**，然后会弹出一行**Current password: **并且等待你的输入。这里的current password指的是你的**现在的密码**，这时候还没有修改密码，因此需要先输入一遍原来的密码，也就是你的初始密码（你的学号）。正确输入初始密码之后，终端会提示**new password**，这时候再输入你想要设置的密码即可，服务器并没有对设置密码的规则做出要求，但是建议同学们设置比较复杂的密码，防止被别人破解。在每次输入密码的时候，**终端什么都不会显示**，这是正常的，不是因为你键盘怀了或者卡了无法输入，这主要是防止别人偷看到密码或者得知密码的长度。
+!!! note
+    如果你发现你的账号不存在，忘记密码，或者无法正常登录等情况（比如密码被同学篡改或者在第一周开课之后才选上课），请立刻联系助教进行处理
 
-!!!note
-    正确输入密码之后，终端会提示**password updated successfully**，这就说明已经成功修改密码了。后续再次尝试登陆的时候，输入你**修改后的密码**就可以正常登陆了。
-    
+## 首次登录
 
-## 登录方式
-使用 ssh 登录，登录所需信息如下：
+首次登录时，系统会强制要求改密码，必须使用**系统终端**进行第一次登录，直接使用VSCode等会报错**找不到tty**
 
-- 地址：x86.ics.xjtu-ants.net
-- 端口号：2291
-
+常见系统的登录命令如下（注意将`username，`host`，`port`改成自己的用户名和目标服务器的真实域名和端口）：
 
 === "Windows"
 
-    可以使用Windows自带的Powershell，使用如下命令登录：
+    建议使用Windows自带的Powershell，使用如下命令登录：
+    
     ```
-    ssh username@x86.ics.xjtu-ants.net -p2291
+    ssh username@host -p port
     ```
-    参考连接： Powershell连接ssh
+    
+    例如用户名是`2213112457-ics`，选择第一台服务器，则实际命令为：
 
-    也可使用其他 ssh 客户端，如putty, xshell, tabby, windows terminal等。
-
-    下载客户端后，配置好用户名、服务器地址、端口号，即可登录。
-
-    参考链接：
-
-    - putty: [PuTTY 新手使用教程（详细图文）](https://www.putty.wang/putty-jc/)
-    - xshell: [Xshell怎么用？详细的Xshell使用教程](https://cloud.tencent.com/developer/article/1822579)
-    - tabby: [Tabby 使用指南：一个高度可配置的现代化终端模拟器](https://zhuanlan.zhihu.com/p/443550221)
-    - windows terminal: [windows terminal 连接远程 ssh](https://www.jianshu.com/p/b7a105a67253)
+    ```
+    ssh 2213112457-ics@icsserver.netperf.cc -p 2220
+    ```
 
 === "MacOS"
 
-    打开系统自带的 Terminal 或者下载 iTerm 软件，使用如下命令登录
+    打开系统自带的 Terminal ，使用如下命令登录
 
     ```
-    ssh username@x86.ics.xjtu-ants.net -p2291
+    ssh username@host -p port
     ```
-    其中，username 为各自的账户名。
+
+    例如用户名是`2213112457-ics`，选择第一台服务器，则实际命令为：
+
+    ```
+    ssh 2213112457-ics@icsserver.netperf.cc -p 2220
+    ```
 
 === "Linux"
 
     打开终端软件，使用如下命令登录
 
     ```
-    ssh username@x86.ics.xjtu-ants.net -p2291
+    ssh username@host -p port
     ```
-    其中，username 为各自的账户名。
 
-=== "VSCode + remote ssh插件"
+    例如用户名是`2213112457-ics`，选择第一台服务器，则实际命令为：
 
-    详见 [vscode-setting](./VScodeRemote-SSH.md)
+    ```
+    ssh 2213112457-ics@icsserver.netperf.cc -p 2220
+    ```
+
+命令执行之后，系统会提示输入密码，此时输入**你的初始密码**即可。
+
+![](../assets/images/ics-server/login-1.png)
+
+!!!note
+    输入密码的时候不会有回显，这是正常情况
+
+成功登陆以后，系统会提示你需要**立刻修改密码**，否则登录是失败的：
+
+![](../assets/images/ics-server/login-2.png)
+
+这个时候需要首先输入当前的密码，也就是你自己的**初始密码**，输入成功之后，系统会提示修改密码：
+
+![](../assets/images/ics-server/login-3.png)
+
+此时才需要输入**自己想设置的新密码**，注意密码需要满足系统的要求（比如不能太短等）。
+
+输入新密码之后，根据系统提示再重新输入一遍**自己设置的新密码**，匹配成功之后，会出现如下界面，说明登录成功。
+
+![](../assets/images/ics-server/login-4.png)
+
+后续再次登录时，输入**自己设置的新密码**即可登录成功。
 
 ## 登录成功检查
-无论大家使用上述的什么方式尝试登录ICSServer，在ICSServer的终端中键入如下命令：
+
+无论大家使用上述的什么方式尝试登录ICS-Server，在ICS-Server的终端中键入如下命令：
+
 ```
 whoami
 ```
 
-若显示你对应的用户名（即学号+‘ics’），则表明你登录ICSServer成功且账号无误。
-
+若显示你对应的用户名（比如`2213112457-ics`），则表明你登录ICS-Server成功且账号无误。
 
 ## 免密登录
 
-暂不做要求。
+SSH免密登录即**使用密钥**进行登录，可以免去输入密码的过程，大幅提升速度。
 
-具体可查阅如下资料尝试：
-[详见 SSH 密钥登录](https://wangdoc.com/ssh/key)/[在win10和Linux上配置SSH免密登录](https://blog.csdn.net/qq_40156289/article/details/120342781)
-!!! warning
-    严禁使用服务器挖矿。
+免密登录的过程包括**生成密钥**和**上传公钥到服务器**两个步骤。
 
-## WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
-known_hosts文件是SSH客户端中的一个配置文件。当首次与一个SSH服务器建立连接时，客户端会记录下该服务器返回的的公钥，并保存在known_hosts文件中，以后每次连接该服务器时，客户端都会验证该服务器返回的公钥是否与known_hosts文件中保存的一致。如果不一致，则会发出警告，提示可能存在DNS劫持、中间人攻击等安全问题。
+首先打开系统终端，输入以下命令生成**一对公钥和私钥**：
 
-使用SSH连接远程服务器或者使用Git拉取代码时，偶尔会出现“WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!”警告，一般是以下几种情况导致的：
-
-- 远程服务器重装或更换了系统，导致系统生成的密钥发生了变化。
-- 本地计算机重装了系统或者更改了SSH客户端软件。
-- 发生了中间人攻击，远程服务器可能是伪造的。
-
-比较简单的解决方法：删除known_hosts文件中的对应行。
-
-一般这个问题的报错如下：
-
-<figure markdown="span">
-  ![Image title](../assets/images/know_hosts.png){ width=auto }
-</figure>
-
-只需要根据这个红框提示的目录，找到对应的known_hosts文件，将这个文件中的有2291的行全部删去即可。（更绝的可以直接删除这个known_hosts文件）
-
-下面给出ICS-Server的服务器公钥指纹（public key fingerprints），供大家参考：
-
-- `SHA256:4ON3oPpCRU0uZdIc6SWPDBCKCYOrpKgXqvE5aiyCCzE`(RSA)
-- `SHA256:/RIkpkRMvv3QGQPuVLwdBtQb39a+7WTxm6ffQxYGlNk`(DSA)
-- `SHA256:H/DX2QMavSC6rbwxAvtLOy5vZYOECbpPxfxDIOAhj14`(ECDSA)
-- `SHA256:TdWfFxmK+7Fc1Gwpkj1ZYhey676aTTwAstrX7QFDHsI`(ED25519)
-
-你也可以将下列服务器公钥直接添加到你的`~/.ssh/known_hosts`文档里：
-
-```text
-[x86.ics.xjtu-ants.net]:2291 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJILyuHQY2bJ+WivExEjByZ2aG5tLayZkw9AqwGH4w4r
-[x86.ics.xjtu-ants.net]:2291 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEBzKfIjDxQp0bKgBczbKq6Bk96CiCdGTAqbDnt/muT6GdLCy7Wh4k0JKwuRq8n65G/bhBSTOg+egZDwHTFG6q4=
-[x86.ics.xjtu-ants.net]:2291 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCrNsqug9P4eeW9ewfSylBG/FsYvtjaK6Q+sUjfhBv8MN7OJoMm9MY/kCIi8C8CF3qOtzOq3aJMrRwvPbpt79zq1NetQNp6sw0LhEYWAUPUvFb9fS0gZAicETUFHVQm2uipYTIyXwKhm/kLRb1MWL638cWpVKCpPvTvt0FiOiOu6XTa4HADFNblTW48Tn93XH1Z12BDJTUbseicp1oeIbi9zDMENLihZCmsGTwM05d2omSQ2henYndD1he1fXwKAebhrFdqkrMdd0iet6GQESOGb5PBxwxhYphIa7Ue9tWuDfIRH1PK25uSYn4a4E9x1l1khvXc/ag7nGcEGqtoWOHK5pLjtUVp0VVYVFCy+wcHWkdiHL9zcxXIljV7VuNWCX49DzosVLacs4xFTes1F47UqOZocqK+q2kNXE6PeKt/PuDHNPPB7RfA9WgE5u3+jYS5S6KUhy9TimpGjV3UEAQyZbGPWbepzvxLkzBcpuDFBsWbPtErV/kYMZQYUC5hgzk=
+```
+ssh-keygen
 ```
 
+之后一直按回车就行。
+
+!!! note
+    ssh-keygen可以设置很多命令行参数，感兴趣的同学可以自行探索
+
+成功生成密钥之后，你会得到两个文件，其中带有`.pub`后缀的是公钥（比如`id_ed25519`和`id_ed25519.pub`）
+
+接下来，将公钥上传至服务器。
+
+如果是 MaxOS/Linux 系统，直接使用以下命令即可：
+
+```
+ssh-copy-id username@host -p port
+```
+
+如果是Windows系统，则需要手动将公钥内容复制到服务器的`~/.ssh/authorized_keys`文件中。
+
+公钥上传成功之后，再次运行之前的登录命令，无需输入密码即可登录。
+
+如果连登录命令都不想输入，可以将服务器的配置写入`~/.ssh/config`文件，以下内容作为参考：
+
+```
+Host ics
+    HostName host
+    User username
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+其中，Host字段可以随意设置，比如设为`ics`，HostName设置成服务器的**域名**，User设置成自己的**用户名**，IdentityFile设置成你自己的**私钥地址**。
+
+后续直接输入`ssh ics`即可成功连接。
+
+## 后续操作
+
+成功使用系统终端登录之后，后续就可以在服务器上开发和探索了，可以参考如下文档：
+
+- 使用vscode进行远程开发，参考[VSCode远程开发](../resources/VScodeRemote-SSH.md)
+
+- Linux命令行学习与探索，参考[实用工具学习](../labs/lab0.md#实用工具学习)
+
+- 常用命令大全，参考[Unix/Linux Command Reference :fontawesome-solid-file-pdf:](../assets/files/linux-command-reference.pdf)

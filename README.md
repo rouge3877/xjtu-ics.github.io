@@ -20,7 +20,7 @@ pip install mkdocs-material mkdocs-open-in-new-tab mkdocs-macros-plugin pandas t
 mkdocs serve
 ```
 
-## 添加个人资料  
+## 添加助教个人资料  
 
 按照以下格式创建一个JSON文件填写您的个人信息。  
 
@@ -29,8 +29,9 @@ mkdocs serve
     "homepage_url": "https://example.com",  
     "name": "您的姓名",  
     "email": "您的邮箱",  
-    "office": "您的办公室",  
-    "intro": "个人简介",  
+    "office": "您的办公室",
+    "office_hour": "TBD",  
+    "intro": "个人简介"
 }  
 ```  
 
