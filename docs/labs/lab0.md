@@ -39,7 +39,7 @@ VSCode强大之处在于其“远程”开发能力，这里的远程包括：
 - 登录到远程的服务器上进行开发，真正地work remotely
 - 登录到本地的虚拟机/docker环境开发
 
-此外，到目前为止，VSCode对于一些AI工具的插件支持也非常不错。
+<!-- 此外，到目前为止，VSCode对于一些AI工具的插件支持也非常不错。 -->
 
 当然，我们也推荐大家采用自己习惯的工具进行开发。
 
@@ -51,16 +51,16 @@ VSCode强大之处在于其“远程”开发能力，这里的远程包括：
 
 开发工具的学习不必像学习其他理论课程一样教条，关键在于多上手，多查阅，多探索，用到什么学什么，而不是全部学完再上手，**切勿死记硬背**。
 
-### AI工具使用
-
-已经6202年了，各类AI模型以及各种AI Agent已经可以构建强大的自动化workflow，极大的提升自己的工作效率，这里推荐一些好用的AI工具：
-
-- Reading/Slides/Image: [NotebookLM](notebooklm.google)，[NanoBanana](https://gemini.google.com)
-- Coding: [Codex CLI](https://developers.openai.com/codex/cli/), [Claude Code](https://code.claude.com/docs/en/overview), [Antigravity](https://antigravity.google/)
-- Noting: [Obsidian](https://obsidian.md/)/[Notion](https://www.notion.com/) + AI
-- Others: [Gemini CLI](https://geminicli.com/), [OpenCode](https://opencode.ai/), [OpenClaw](https://openclaw.ai/)...
-
-有关这些工具的配置和使用方法可以参考[AI-Tools](../assets/files/AI4Sys-Release.pdf)，或者其他网络上的优质博客等，这里不过多解释。
+<!-- ### AI工具使用 -->
+<!---->
+<!-- 已经6202年了，各类AI模型以及各种AI Agent已经可以构建强大的自动化workflow，极大的提升自己的工作效率，这里推荐一些好用的AI工具： -->
+<!---->
+<!-- - Reading/Slides/Image: [NotebookLM](notebooklm.google)，[NanoBanana](https://gemini.google.com) -->
+<!-- - Coding: [Codex CLI](https://developers.openai.com/codex/cli/), [Claude Code](https://code.claude.com/docs/en/overview), [Antigravity](https://antigravity.google/) -->
+<!-- - Noting: [Obsidian](https://obsidian.md/)/[Notion](https://www.notion.com/) + AI -->
+<!-- - Others: [Gemini CLI](https://geminicli.com/), [OpenCode](https://opencode.ai/), [OpenClaw](https://openclaw.ai/)... -->
+<!---->
+<!-- 有关这些工具的配置和使用方法可以参考[AI-Tools](../assets/files/AI4Sys-Release.pdf)，或者其他网络上的优质博客等，这里不过多解释。 -->
 
 ### Linux使用入门
 
