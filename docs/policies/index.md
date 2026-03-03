@@ -17,7 +17,7 @@
 
 ## 答疑
 
-一对一答疑：请大家在[Office Hour](../staff)与老师/助教进行一对一答疑。
+一对一答疑：请大家在[Office Hour](../staff/index.md)与老师/助教进行一对一答疑。
 
 网上答疑：请大家在[Piazza](https://piazza.com/stu.xjtu.edu.cn/spring2026/xjtuics)上提问，
 老师和助教会对大家的问题做出解答。
