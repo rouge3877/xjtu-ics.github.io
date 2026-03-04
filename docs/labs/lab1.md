@@ -1,4 +1,4 @@
-# XJTU-ICS lab 1: Data Lab 数据实验
+# XJTU-ICS lab 1: Data Lab
 
 ## 实验简介
 
@@ -10,53 +10,33 @@ Enjoy and Have fun! 😉
 
 ## 注意事项
 
-- 这是一个“个人”作业，请不要抄袭或者尝试几个人一起完成.
+- 这是一个**个人**作业，请不要抄袭或者尝试几个人一起完成.
 - 这些问题并不是一些完全全新的问题，我们鼓励“Google”学习解决一些代码之外的问题（环境问题/工具使用问题），但是频繁的查询代码谜题相关的解将使得这个实验与课程失去意义.
-- 不要使用诸如deepseek，chatgpt等大模型的帮助，当然你用了我们可能查不出来，但是建议自己动脑子完成这些题目，现在花时间了期末考试复习就简单了 😍
+- **不要使用AI Agent工具协助开发**
 
 ## 开发环境和实验前准备
 
-前置要求： 学习完[lab0: 环境搭建](./lab0.md)，确保自己手边有可用的linux环境和完整的开发工具链(gcc, make等)，**不要试图在windows环境下完成实验**。
+仔细阅读[Lab0指导书]，根据自己的需求准备好linux开发环境和必备工具链（gcc，make，git等）。
 
 ### 远程开发
 
-如果你手边没有Linux环境，不用担心，我们为每一个同学准备了服务器账号。
-
-不知道怎么使用服务器的同学，请移步[ICS Server](../resources/ICS-Server.md)学习完整流程，并且**确保你可以登陆上ICS服务器**
-
-在服务器上开发方式选择：
-
-- （推荐）使用vscode进行远程连接，具体可以查看教程[Vscode ssh配置](../resources/VScodeRemote-SSH.md)
-- （能力强的同学可以尝试，同时可以向助教分享你的配置 🥳）使用tmux + ssh + vim/nvim/emacs等工具进行开发。
-
-登陆成功之后，在自己的家目录下（`/home/username`），应该可以看到一个名为`datalab-sp25`的目录：
+已经拥有ICS-Server账号的同学，在自己的家目录下（`/home/username`），应该可以看到一个名为`datalab-sp26`的目录：
 
 如果你缺少这个目录，有三种解决方式：
 
-- 在课程网站上下载[datalab-sp25.tar](../assets/files/datalab-sp25.tar)，然后通过命令`tar xvf datalab-sp25`解压
-- 进入本次实验的[公有仓库](https://github.com/xjtu-ics/datalab-sp25)，使用`git clone`克隆仓库到本地（推荐）
-- 寻找助教进行解决
+- 在课程网站上下载[datalab-sp26.tar](../assets/files/datalab-sp26.tar)，然后通过命令`tar xvf datalab-sp26`解压
+- 进入本次实验的[公有仓库](https://github.com/xjtu-ics/datalab-sp26)，使用`git clone`克隆仓库到本地（推荐）
+- 寻找助教进行解决（不推荐）
 
-当然，助教们希望同学们还是尽量可以自己解决，毕竟一方面助教们平时都很忙，另一方面自己动手查阅资料，解决问题也可以培养自己这方面的能力，这也是这门课开设的初衷。 💪
+当然，助教们希望同学们还是尽量可以自己解决，毕竟一方面助教们平时都很忙，另一方面自己动手查阅资料，解决问题也可以培养自己这方面的能力，这也是这门课开设的初衷。
 
 ### 本地开发
 
-也可以自己搭建开发环境，环境要求为：
-
-- Linux 或 WSL (推荐 Ubuntu 22.04 / Arch Linux)
-- gcc-11
-- GNU Make
-
-!!!note
-    上述工具版本仅供参考，使用更高版本的工具链只要不报错就可以。
-
-有关本地环境的搭建指导，请移步[Linux Installation](../resources/LinuxInstallation.md)
-
 自己本地开发的实验资源获取方式：
 
-- 下载文件[datalab-sp25.tar](../assets/files/datalab-sp25.tar)，然后通过命令`tar xvf datalab-sp25.tar`进行解压
-- 进入本次实验的[公有仓库](https://github.com/xjtu-ics/datalab-sp25)，使用`git clone`克隆仓库到本地（推荐）
-- 找同学/助教发给你
+- 在课程网站上下载[datalab-sp26.tar](../assets/files/datalab-sp26.tar)，然后通过命令`tar xvf datalab-sp26`解压
+- 进入本次实验的[公有仓库](https://github.com/xjtu-ics/datalab-sp26)，使用`git clone`克隆仓库到本地（推荐）
+- 寻找助教进行解决（不推荐）
 
 如果你已经顺利的在本地安装或者申请到了一个稳定的Linux环境，并且准备好了实验相关目录，那么就可以顺利的开始你的实验~
 
@@ -73,8 +53,7 @@ git --version
 !!!note
     如果需要通过ssh使用github, 首先在本地生成ssh密钥对，然后将公钥添加到自己的github账户中。
 
-
-如果你使用服务器或者通过下载压缩包的方式，那么你需要首先建立一个本地仓库，切换到`datalab-sp25`目录，然后输入以下命令：
+如果你使用服务器或者通过下载压缩包的方式，那么你需要首先建立一个本地仓库，切换到`datalab-sp26`目录，然后输入以下命令：
 
 ```bash
 git init
@@ -85,7 +64,7 @@ git init
 之后你可以将我们的公开仓库和自己的本地仓库关联：
 
 ```bash
-git remote add upstream git@github.com:xjtu-ics/datalab-sp25.git
+git remote add upstream git@github.com:xjtu-ics/datalab-sp26.git
 ```
 
 这里我们建议你将公有仓库的名字命名为`upstream`，因为通常代表了**上游仓库**，在多人协同开发中，这种仓库通常用于同步本地信息，**即可以pull，但是没有push权限**的仓库。
@@ -188,14 +167,12 @@ bits.c  bits.h  btest.c  btest.h  decl.c  dlc  Driverlib.pm  driver.pl  fshow.c 
 `make`方法：在对应路径下在命令行输入`make`，回车.
 
 ```bash
-linux$ make
+make
 ```
 
 如果`make`成功，一个典型的输出结果如下所示：
 
-```bash
-
-linux$ make                                                                                   
+```bash                         
 gcc -O -Wall -m32 -lm -o btest bits.c btest.c decl.c tests.c
 gcc -O -Wall -m32 -o fshow fshow.c
 gcc -O -Wall -m32 -o ishow ishow.c
@@ -419,20 +396,20 @@ int minusOne(void) {
 这个小节简要地介绍了你将要面临的小谜题，同时你可以参考解决一个谜题用到的操作符数量~
 
 ```text
-Correctness Results	Perf Results
-Points	Rating	Errors	Points	Ops	Puzzle
-8	8	0	2	1	isZero
-8	8	0	2	7	bitXor
-8	8	0	2	2	copyLSB
-8	8	0	2	2	isNegative
-8	8	0	2	7	allEvenBits
-8	8	0	2	17	byteSwap
-8	8	0	2	3	removeRightmostOne
-10	10	0	2	10	maskBelowHighest
-10	10	0	2	18	largerAbsVal
-4	4	0	2	40	bitReverse
+Correctness Results     Perf Results
+Points  Rating  Errors  Points  Ops     Puzzle
+8       8       0       2       1       tmin
+8       8       0       2       9       upperBits
+8       8       0       2       4       sign
+8       8       0       2       3       copyBit
+8       8       0       2       7       fitsBits
+8       8       0       2       7       anyOddBit
+8       8       0       2       3       distinctNegation
+10      10      0       2       12      isGreater
+10      10      0       2       7       isAbsEqual
+4       4       0       2       37      howManyBits
 
-Score = 100/100 [80/80 Corr + 20/20 Perf] (107 total operators)
+Score = 100/100 [80/80 Corr + 20/20 Perf] (90 total operators)
 ```
 
 一共有10道题等待你去解决，请**详细核对自己的题目和上述题目是否有出入，如有出入，请联系助教处理**。
@@ -462,6 +439,7 @@ Score = 100/100 [80/80 Corr + 20/20 Perf] (107 total operators)
 同时谜题的**最大操作符数量也是有限制**的，如果你可以实现在最大操作符数量之内完成函数，每个函数得2分，如果你可以保持正确性并且操作符数量在最大操作符数量之内，你将获得剩余的“性能分”20分。
 
 ### 迟交
+
 在超过原定的截止时间后，我们仍然接受同学的提交。此时，在lab中能获得的最高分数将随着迟交天数的增加而减少，具体服从以下给分策略：
 
 超时7天（含7天）以内时，每天扣除3%的分数
@@ -472,6 +450,7 @@ Score = 100/100 [80/80 Corr + 20/20 Perf] (107 total operators)
 评分样例：如某同学小H在lab中取得95分，但晚交3天，那么他的最终分数就为`95*(1-3*3%)=86.45`分。同样的分数在晚交8天时，最终分数则为`95*(1-7*3%-1*4%)=71.25`分。
 
 ## 本地自动测试你的工作
+
 上一节中，我们简要地谈到了你的实验成绩的组成，你可能感到了慌张。我该怎么保证我本地的程序是bugfree的呢？难不成要我自己手动人肉测试吗！？这显然是一种苛求，事实上，我们将完整的测试程序在实验分发包中给了你。
 
 - 你可以自行使用测试程序`btest`去测试你的程序的正确性。
@@ -483,24 +462,24 @@ Score = 100/100 [80/80 Corr + 20/20 Perf] (107 total operators)
 - 当然实验中还有两个程序可以帮助你完成这个实验，就是`ishow`和`fshow`。
 
 ### 代码功能正确性 -> `btest`
+
 如果你的`bits.c`的程序编写满足C语言要求并可以通过编译，在本地根目录下`make`之后你将会获得：
 
 ```bash
-linux$ make
+make
 ```
 
 如下的目录：
 
 ```bash
-linux$ ls
 bits.c  bits.h  btest  btest.c  btest.h  decl.c  dlc  Driverlib.pm  driver.pl  fshow  fshow.c  ishow  ishow.c  Makefile  README.md  tests.c
 ```
 
 其中`btest`程序通过多次调用它们来检查`bits.c`中函数的正确性不同的参数值。要构建和使用它，请键入以下两个命令：
 
 ```bash
-linux$ make
-linux$ ./btest
+make
+./btest
 ```
 
 需要注意的第一点是，你**每次修改你的`bits.c`文件之后，你需要通过`make`重新`build`之后再进行测试**：
@@ -508,11 +487,11 @@ linux$ ./btest
 即如果你新完成了一个谜题，你想要重新测试，则需要完成如下的流程：
 
 ```bash
-linux$ make
-linux$ ./btest
+make
+./btest
 ```
 
-通常来说你会获得如下类型的运行结果：
+通常来说你会获得类似如下结果：
 
 ```bash
 linux$ ./btest
@@ -546,7 +525,7 @@ Total points: 72/80
 btest并不会告诉我们写的代码是不是符合代码规则，这时候就需要使用`dlc`了。`dlc`的使用方法非常简单，如下：
 
 ```bash
-linux$ ./dlc bits.c
+./dlc bits.c
 ```
 
 如果你的代码都符合代码规则，那不会输出任何结果。
@@ -554,7 +533,6 @@ linux$ ./dlc bits.c
 如果你的代码中有不符合代码规则的地方，一个典型的输出结果如下所示：
 
 ```bash
-linux$ ./dlc bits.c
 dlc:bits.c:202:copyLSB: Illegal if
 dlc:bits.c:230:conditional: Illegal constant (0xffffffff) (only 0x0 - 0xff allowed)
 dlc:bits.c:245:isPositive: Warning: 10 operators exceeds max of 8
@@ -576,12 +554,11 @@ dlc:bits.c:245:isPositive: Warning: 10 operators exceeds max of 8
 `driver.pl`的使用方法如下：
 
 ```bash
-linux$ ./driver.pl
+./driver.pl
 ```
 
 一个典型的结果如下：
 ```bash
-linux$ ./driver.pl
 1. Running './dlc -z' to identify coding rules violations.
 
 2. Compiling and running './btest -g' to determine correctness score.
@@ -619,13 +596,18 @@ Score = 90/100 [72/80 Corr + 18/20 Perf] (105 total operators)
 我们为您提供了相应的便捷工具`ishow`、`fshow`，您可以使用提供的程序 `ishow `查看整数的十进制和十六进制表示形式。首先编译代码如下：
 
 ```bash
-linux$ make
+make
 ```
 
 然后使用它来检查在命令行中键入的十六进制和十进制值：
 
 ```bash
-linux$  ./ishow 0x80000000
+./ishow 0x80000000
+```
+
+一般输出为：
+
+```bash
 Hex = 0x80000000,       Signed = -2147483648,   Unsigned = 2147483648
 linux$  ./ishow -1
 Hex = 0xffffffff,       Signed = -1,    Unsigned = 4294967295
@@ -634,18 +616,17 @@ Hex = 0xffffffff,       Signed = -1,    Unsigned = 4294967295
 
 同理我们还提供了`fshow`工具，这是一个浮点数的转换器，但是这次的实验没有涉及，所以不做要求，大家有兴趣可以自行尝试，使用方法与`ishow`类似。
 
-
 ## 代码提交
 
-在`datalab-sp25` 目录下执行`make submit`
+在`datalab-sp26` 目录下执行`make submit`
 
 ```bash
-linux$ make submit
+make submit
 ```
 
 目录下都会生成一个名为 `<userid>-handin.zip `的文件（其中 `<userid> `为`Linux`系统中你的用户名）。（每次修改代码后，记着要重新运行`make submit`）
 
-在[在线学习平台](http://class.xjtu.edu.cn/)上的作业模块中，将该文件作为附件提交即可。
+在[在线学习平台]()上的作业模块中，将该文件作为附件提交即可。
 
 ## 一些小的建议
 
@@ -660,5 +641,5 @@ linux$ make submit
 
 ---
 
-Copyright © 2025 XJTU ICS-TEAM
+Copyright © 2026 XJTU ICS-TEAM
 
