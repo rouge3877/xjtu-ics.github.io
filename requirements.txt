@@ -3,4 +3,5 @@ mkdocs-open-in-new-tab
 mkdocs-macros-plugin
 pandas
 tabulate
+pymdown-extensions
 mike
