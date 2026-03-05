@@ -90,7 +90,7 @@ gcc -O -Wall -m32 -o ishow ishow.c
 如果成功`make`此时你的实验目录将会变成如下：
 
 ```bash
-bits.c  bits.h  btest  btest.c  btest.h  decl.c  dlc  Driverhdrs.pm  Driverlib.pm  driver.pl  fshow  fshow.c  ishow  ishow.c  Makefile  tests.c  xxx-datalab-handin.zip
+bits.c  bits.h  btest  btest.c  btest.h  decl.c  dlc  Driverhdrs.pm  Driverlib.pm  driver.pl  fshow  fshow.c  ishow  ishow.c  Makefile  tests.c
 ```
 
 简单验证可用性，我们简单运行一下`make`之后获得可执行文件`btest`，输入以下命令：
@@ -368,14 +368,14 @@ Test copyBit测试用例出差错，其中：
 ```bash
 dlc:bits.c:204:copyBit: Illegal operator (==)
 dlc:bits.c:205:copyBit: Illegal if
-dlc:bits.c:206:copyBit: Warning: 4 operators exceeds max of 3
+dlc:bits.c:206:copyBit: Warning: 10 operators exceeds max of 8
 ```
 
 如上，`dlc`告诉我们:
 
 - 在204行，`copyBit`函数中，使用了非法的操作符`==`。
 - 在205行，`copyBit`函数中，使用了非法的操作符`if`。
-- 在206行，`copyBit`函数中，使用了`4`个操作符，超过了`Maxops=3`个。
+- 在206行，`copyBit`函数中，使用了`10`个操作符，超过了`Maxops=8`个。
 
 根据输出的结果我们返回去继续修改我们的代码。
 
