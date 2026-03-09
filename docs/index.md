@@ -100,16 +100,26 @@ Enjoy!
 <!---->
 <!--     ~ XJTU-ICS Course Staff -->
 
-!!! info "Announcements for Week 1 :loudspeaker:"
+!!! info "Announcements for Week 2 :loudspeaker:"
 
-    Please note the release date of labs:
+    Please note the deadline of datalab:
 
-    - [Lab 0](labs/lab0.md) has been released. This lab is a prerequisite for all other labs. Please finish it in time!
-    - DataLab will be released this Thursday (2026-03-05). Enjoy! :smile:
+    - [DataLab](labs/lab0.md) is due this Sunday (2025-03-15 23:59). Don't forget to submit. :warning: -->
 
     **DON'T CHEAT**. Big Brother is watching you!
 
     ~ XJTU-ICS Course Staff
+
+<!-- !!! info "Announcements for Week 1 :loudspeaker:" -->
+<!---->
+<!--     Please note the release date of labs: -->
+<!---->
+<!--     - [Lab 0](labs/lab0.md) has been released. This lab is a prerequisite for all other labs. Please finish it in time! -->
+<!--     - DataLab will be released this Thursday (2026-03-05). Enjoy! :smile: -->
+<!---->
+<!--     **DON'T CHEAT**. Big Brother is watching you! -->
+<!---->
+<!--     ~ XJTU-ICS Course Staff -->
 
 
 ## Getting Help
