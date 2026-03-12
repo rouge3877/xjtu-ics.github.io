@@ -104,8 +104,8 @@ Enjoy!
 
     Please note the deadline of datalab:
 
-    - [DataLab](labs/lab0.md) is due this Sunday (2025-03-15 23:59). Don't forget to submit. :warning: -->
-    - BombLab will be released this Thursday (2025-03-12). Enjoy! :smile:
+    - [DataLab](labs/lab1.md) is due this Sunday (2025-03-15 23:59). Don't forget to submit. :warning:
+    - [BombLab](labs/lab2.md) will be released this Thursday (2025-03-12). Enjoy! :smile:
 
     **DON'T CHEAT**. Big Brother is watching you!
 
