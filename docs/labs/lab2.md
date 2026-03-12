@@ -85,12 +85,12 @@ ls
 你可以看到一个`bomblab-<number>`目录，这就是你的炸弹目录，其中`<number>`是**你个人的学号**。
 
 !!!warning
-    请仔细检查炸弹学号和自己的学号是否匹配，以防误拿别的同学的炸弹～
+    请仔细检查炸弹学号和自己的学号是否匹配，以防误拿别的同学的炸弹
 
 !!!warning
     本次实验**每个同学的炸弹均不相同**，使用本地开发, 炸弹遗失或者炸弹出现错误的同学**请联系助教**处理
 
-进入炸弹目录
+进入实验目录
 
 ```bash
 cd bomblab-<number>
@@ -110,7 +110,7 @@ bomb  bomb.c  ID Makefile
 - `Makefile`: 包含了测试和提交的命令
 
 !!!warning
-    如果本地目录下没有炸弹，或者炸弹不完整请及时联系助教解决。
+    如果你缺少或者误删`bomb`可执行文件，请及时联系助教解决。
 
 检查完毕，可以开始尝试**拆弹**。
 
@@ -155,9 +155,6 @@ int main(int argc, char *argv[])
 本质上我们的拆弹分成6个阶段，这六个阶段**每个阶段都需要我们键入特定的密码内容来拆弹**，而这个密码推荐以一个**输入文件**的方式来传递。并且处理每一个炸弹都通过**阅读输入文件的完整一行**（`read_line()`）的方式来传递。
 
 我们将`bomb.c`分发给了大家，大家可以通过阅读了解炸弹大致结构。
-
-!!!note
-    注意`bomb.c`不可编译，仅仅起到描述炸弹结构的作用
 
 !!!danger
     炸弹的拆除是**按阶段进行**的，也就是说你**必须在通过phase_1之后才能继续phase_2**，否则即使后面的炸弹全部正确拆除，最终得分仍然是0分。
@@ -453,11 +450,11 @@ gdb bomb
 
 ![caller_saved_register.png](../assets/images/caller_saved_register.png)
 
-调用者保佑寄存器图
+调用者保存寄存器图
 
 ![callee_saved_register.png](../assets/images/callee_saved_register.png)
 
-被调用者保佑寄存器图
+被调用者保存寄存器图
 
 在x86-64 Linux ABI（Apllication Binary Interface）中的Function Calling Sequence（函数调用约定）规定了函数调用和参数传递的相关规则（即在rdi寄存器保存第一个参数、rsi寄存器保存第二个参数，哪些寄存器属于被调用者使用等等），大家可以在书本对应位置查找到使用方法，这里不再做赘述。
 
