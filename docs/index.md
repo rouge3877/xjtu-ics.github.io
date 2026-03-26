@@ -81,32 +81,21 @@ Enjoy!
 <!---->
 <!--     ~ XJTU-ICS Course Staff -->
 
-<!-- !!! info "Announcements for Week 4 :loudspeaker:" -->
-<!---->
-<!--     Enjoy the Bomb Lab! :smile: -->
-<!---->
-<!--     **DON'T CHEAT**. Big Brother is watching you! -->
-<!---->
-<!--     ~ XJTU-ICS Course Staff -->
-<!-- !!! info "Announcements for Week 3 :loudspeaker:" -->
-<!---->
-<!--     Please note the deadline and release date of labs: -->
-<!---->
-<!--     - DataLab is due this Sunday (2025-03-09 23:59). Don't forget to submit. :warning: -->
-<!---->
-<!--     - BombLab will be released this Thursday (2025-03-06). Enjoy! :smile: -->
-<!---->
-<!--     **DON'T CHEAT**. Big Brother is watching you! -->
-<!---->
-<!--     ~ XJTU-ICS Course Staff -->
+!!! info "Announcements for Week 4 :loudspeaker:"
 
-!!! info "Announcements for Week 3 :loudspeaker:"
-
-    Enjoy [BombLab](labs/lab2.md)! :smile:
+    The deadline of [BombLab](labs/lab2.md) is extended to 2026-04-05. Enjoy! :smile:
 
     **DON'T CHEAT**. Big Brother is watching you!
 
     ~ XJTU-ICS Course Staff
+
+<!-- !!! info "Announcements for Week 3 :loudspeaker:" -->
+<!---->
+<!--     Enjoy [BombLab](labs/lab2.md)! :smile: -->
+<!---->
+<!--     **DON'T CHEAT**. Big Brother is watching you! -->
+<!---->
+<!--     ~ XJTU-ICS Course Staff -->
 
 <!-- !!! info "Announcements for Week 2 :loudspeaker:" -->
 <!---->
