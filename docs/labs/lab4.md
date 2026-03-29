@@ -1,20 +1,51 @@
-## 实验简介
+# XJTU-ICS Lab 4: Cache Lab
 
-芜湖~转眼就来到第四个实验了，不知道前三个实验大家玩的是否开心，是否都得到了自己满意的分数呢？是否已经习惯了一个又一个周末被XJTU-ICS夺走了呢（笑）？无论你是非常顺利快速地速通了前三个实验，还是刚刚好在Due堪堪提交你的答案。都请大家收拾心情，新实验是一个更新的挑战，将带来更多新的体验。
+> *"Raise your quality standards as high as you can live with, avoid wasting your time on routine problems, and always try to work as closely as possible at the boundary of your abilities. Do this, because it is the only way of discovering how that boundary should be moved forward."*
+
+> *— Edsger W. Dijkstra*
+
+## 前言
+
+Welcome to Cache Lab 😉
+
+开课之前，助教组对修过 2025 年 ICS 课程的同学做了一次小调研。当被问到"哪个 Lab 让你印象最深"时，几乎所有人都不约而同地提到了 Cache Lab——对亲手实现三级 Cache 模拟器的难度，至今心有余悸。
+
+这并不奇怪。相较于前三个 Lab 对计算机基础知识（位表示、GDB 调试、逆向分析）的考察，Cache Lab 更侧重于工程代码能力的锤炼：**如何写出一个简洁、优雅且 bug-free 的程序**，是这个实验最核心的挑战。
+
+也许这是你第一次面对真正具有工程复杂度的编程任务；也许你会被一次次的 Error 折磨到夜不能寐；也许你曾动过"走捷径"的念头——但请记住，**big brother is watching you** 🫵
+
+然而有意思的是，当被追问"为什么对 Cache Lab 印象深刻"时，许多同学不约而同地提到了另一个词：**成就感**。
+
+或许是完全理解三级 Cache 运行机制后的豁然开朗，或许是第一次独立写出大型 bug-free 程序时的如释重负，又或许是看着自己精心设计的代码优雅地 scale 起来时难以言说的满足。
+
+我们希望你也能体验到这种成就感。为此，我们希望：
+
+- 独立完成这个实验，不借助任何代码生成工具（Claude Code、Codex 等）
+- 深入理解三级 Cache 的工作原理及其对程序性能的影响，能够权衡不同访问方式的 trade-off
+- 在实现模拟器的过程中，感受到精心设计所带来的简洁之美
+- 完成后，你可以自豪地将"独立实现三级 Cache 模拟器"写入简历，并有能力将其扩展至更复杂的场景（如多核一致性）
+
+最重要的是，我们希望这段经历能成为你的一种底气。当你在未来的学习或工作中，遭遇更复杂、更晦涩的工程挑战时——无论是十万行的代码库，还是从未见过的系统架构——完成 Cache Lab 的记忆会告诉你：**你曾经做到过**☺️
+
+现在，带着对难度的敬畏，带着对自己的信心，出发吧。
+
+## 实验简介
 
 这个实验的目的是为了让大家在学习课堂理论知识的基础上，更好地理解Cache的运行过程以及Cache对于程序运行性能的影响。
 
 本次实验由两部分构成：
 
-第一部分（Part A）**必做**，总共100分。Part A要求大家使用C语言实现一个**三级Cache模拟器**。实现模拟器并逐渐做到Bugfree的过程会让你加深对Cache基本结构，多级cache的设计和访问方式以及系统设计中的trade-off的理解。
+- Lab4A，总共500分。Part A要求大家使用C语言实现一个**三级Cache模拟器**。实现模拟器并逐渐做到Bugfree的过程会让你加深对Cache基本结构，多级cache的设计和访问方式以及系统设计中的trade-off的理解。
 
-第二部分（Part B）**选做**，这一部分**不占分**。Part B要求大家优化矩阵转置的函数，这个部分的目标是使我们的代码跑的尽可能的快。不断减少Cache Miss次数的过程会帮助你理解Cache对程序运行性能的重要作用。
+- Lab4B，总共100分。Part B要求大家**优化矩阵转置的函数**，这个部分的目标是使我们的代码跑的尽可能的快。不断减少Cache Miss次数的过程会帮助你理解Cache对程序运行性能的重要作用。
 
-这次的实验比起之前的实验来说**更难一（亿）点点**，如果说前两个小实验分别对大家的计算机动手能力和特定的小的分支领域（bit表示和GDB debug、逆向程序能力）提出了一些要求的话，Cache Lab对同学们的代码能力提出了一定的要求。
+!!!warning
+    Lab4A和Lab4B都是必做实验
 
-但是相信在Coding的过程，在逐渐领会其中奥妙的过程中，你会加深对Cache以及Memory Hierarchy的理解。如果在这个过程中，同学的能力有了亿点点的增长，我们会很开心~
+最终得分的计算公式为：
+$score_{total} = score_{Lab4A} \div 5 \times {0.8} + {score_{Lab4B}} \times {0.2}$
 
-Enjoy and Have fun ! 😘
+
 
 ## 注意事项
 
