@@ -70,7 +70,7 @@ void echo() {
 
 在调用`echo`函数时，我们可以通过程序的汇编语言得知栈的组织基本如下图所示：
 
-![stack_org](../assets/images/attacklab_stack_organization.svg)
+![stack_org](../assets/images/attacklab/attacklab_stack_organization.svg)
 
 图中`echo`程序在栈中为自己分配了24字节的地址空间（`echo`的栈帧），字符数组`buf`位于栈顶，可以看到，`buf`之外`echo`还分配了`16`字节是未被使用的。此时只要用户输入不超过`7`个字符，`gets`返回的字符串就可以放进`buf`的空间中，不过，长一些的字符串就会导致`gets`覆盖栈上存储的某些信息，随着字符串变长，下面的信息就会被破坏。
 
@@ -425,7 +425,7 @@ void touch3(char *sval)
 
 下图说明了如何设置堆栈来执行`n`个`gadget`的序列。在该图中，栈上有一些`gadget`地址，这些地址指向各个`Gadget`。每个`Gadget`由一系列指令的字节组成，最后一个字节为`0xc3`，是`ret`指令的字节编码。当栈是这样的时候，如果程序此时执行了一个`ret`指令，那程序会立即执行栈顶也就是`Gadget1`的代码，`Gadget1`末尾的`ret`指令又会使程序执行`Gadget2`的代码，依次类推，程序会执行一连串的`Gadget`，每个`Gadget`末尾的`ret`指令都会使程序跳转到下一个`Gadget`的起点。
 
-![gadget](../assets/images/attacklab_stack_gadget.png)
+![gadget](../assets/images/attacklab/attacklab_stack_gadget.png)
 
 在返回导向编程（ROP）中，我们的`gadget`会经过编译器编译生成汇编代码，我们可以利用这些汇编指令进行攻击，特别是函数末尾部分的一些汇编指令（因为函数最后一般会有`ret`）。实际上，可能会有一些很好用的`gadget`，但它们数量有限，不足以实现许多重要的操作。例如，编译后的函数中很少会以`popq %rdi`作为`ret`之前的最后一条指令。幸运的是，对于像`x86-64`这样的面向字节的指令集，我们常常可以通过提取指令的字节序列中的某些部分来构造所需的`gadget`。这意味着，即使没有直接可用的`gadget`，我们也可以通过拆分现有的指令片段来创造出新的`gadget`。
 
@@ -448,7 +448,7 @@ void setval_210(unsigned *p)
 
 注意`movl $0xc78948d4,(%rdi)`的字节序列的后半段`48 89 c7`，对应指令` movq %rax, %rdi`的字节序列（一些常用的`movq`指令编码见下图A）。该序列之后是编码`ret`指令的字节值`c3`。函数`setval_210`从地址`0x400f15`开始，指令 `movq %rax, %rdi`的序列从函数的第`4`个字节开始。因此，这段代码包含一个**起始地址为`0x400f18`的`gadget`**，它可以实现**把寄存器`%rax`中的64位值传递给寄存器`%rdi`**。
 
-![code](../assets/images/attacklab_bytecoding_instructions.png)
+![code](../assets/images/attacklab/attacklab_bytecoding_instructions.png)
 
 `rtarget`代码中包含许多类似于上图中`setval_210`的函数，这些函数位于名为`gadget farm`的区域中。你的任务是在`gadget farm`中找到对你有用的`gadget`，并利用这些`gadget`进行两次攻击，这两次攻击与第2和第3个`phase`基本相同。
 
@@ -538,7 +538,7 @@ packed to xxxxx-ics-handin.zip
 
 `hex2raw`输入十六进制格式的字节序列。在这种格式中，每个字节值由两个十六进制数字表示。例如，字符串 "`012345 `"可以十六进制格式输入为 "`30 31 32 33 34 35 00`"。
 
-![hex2raw](../assets/images/attacklab_hex2raw.png)
+![hex2raw](../assets/images/attacklab/attacklab_hex2raw.png)
 
 传递给`hex2raw`的十六进制字节应该用空格（空白或换行）分隔。建议你在编写时用换行分隔**exploit字符串**的不同部分。 `hex2raw`支持与`C`语言类似的多行注释，因此你可以标记**exploit字符串**的各个部分。例如
 
