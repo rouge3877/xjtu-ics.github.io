@@ -6,7 +6,7 @@
 
 本次实验中，需要实现的三级cache结构如下：
 
-![3-level-cache](../assets/images/three_level_cache.png)
+![3-level-cache](../assets/images/cachelab/three_level_cache.png)
 
 其中：
 
@@ -46,7 +46,7 @@
 
 ## Trace文件简介
 
-在`cachelab-sp25`目录下的`traces`目录中有许多以`.trace`结尾的文件，我们称它们为trace文件。trace文件中是一系列访存日志，它作为Part A中Cache模拟器的输入，用来判断程序的正确性。trace文件是通过`Valgrind`工具生成的。
+在`cachelab-sp26`目录下的`traces`目录中有许多以`.trace`结尾的文件，我们称它们为trace文件。trace文件中是一系列访存日志，它作为Part A中Cache模拟器的输入，用来判断程序的正确性。trace文件是通过`Valgrind`工具生成的。
 
 !!!note
     `Valgrind`是一款用于内存调试、内存泄漏检测以及性能分析的软件开发工具。
@@ -79,9 +79,11 @@ I 0400d7d4,8
   - `L`表示数据读取（Load）
   - `S`表示数据存储（Store）
   - `M`表示数据修改（Modify）（**实际上是一次Load再加一次Store**）
-  - **注意**：在trace文件中，`I`前面**没有空格**，但是`M`，`L`，`S`前面**一定有一个空格**。
 - `address` 表示一个64位**十六进制**内存地址。
 - `size`表示本次内存访问的字节数。
+
+!!!note
+    **注意**：在trace文件中，`I`前面**没有空格**，但是`M`，`L`，`S`前面**一定有一个空格**。
 
 ## 实验内容及步骤
 
@@ -103,16 +105,17 @@ I 0400d7d4,8
 $ ./csim-ref-partA -h
 usage: ./csim-ref-partA -t trace_file [-h] [-n] [-v] [-l level] [-d] [-i] [-s set] [-b breakpoint] 
 options: 
--h, --help         print this
--o, --output       output file
--t, --trace        input trace file (required)
--n, --snapshot     print cache snapshot
--b, --breakpoint   print cache info after one specified access, note that it can not be enabled in verbose mode
--v, --verbose      print information after each cache access, instead of print snapshot at the end
--l, --level        which cache level [l1--1, l2--2, l3--3] to print (only can be specified when [-n] is enabled)
--d, --data         data cache (must be specified if level == 1)
--i, --instruction  instruction cache (must be specified if level == 1 )
--s, --set          which cache set (index start from 0) to print (only can be specified when [-l] is enabled)
+-h, --help          print this
+-o, --output        output file
+-t, --trace         input trace file (required)
+-c, --cache-levels  number of cache levels to build [1-3] (default: 3)
+-n, --snapshot      print cache snapshot
+-b, --breakpoint    print cache info after one specified access, note that it can not be enabled in verbose mode
+-v, --verbose       print information after each cache access, instead of print snapshot at the end
+-l, --level         which cache level [l1--1, l2--2, l3--3] to print (only can be specified when [-n] is enabled)
+-d, --data          data cache (must be specified if level == 1)
+-i, --instruction   instruction cache (must be specified if level == 1 )
+-s, --set           which cache set (index start from 0) to print (only can be specified when [-l] is enabled)
 ```
 
 下面是对上述参数的具体解释：
@@ -120,6 +123,7 @@ options:
 - `-h`：可选，打印帮助信息
 - `-n`：可选， 打印快照信息
 - `-o`：可选，指定输出信息的文件路径，默认是标准输出
+- `-c`：可选，指定当前构建的最大Cache层级，可选值有`1`、`2`、`3`，默认为`3`
 - `-v`：可选，以详细模式打印信息，这种模式下，相关的统计量和快照信息会在每次进行一次cache访问之后打印，默认是全部trace访问完成之后打印。
 - `-t`: **必选**，指定输入trace文件的路径
 - `-b`：可选，断点功能，将会打印在某一次cache访问之后的cache状态，注意这个参数**不能和`-v`同时使用**
@@ -137,12 +141,22 @@ options:
 下面是一个典型的运行结果：
 
 ```bash
-$ ./csim-ref-partA -t traces-basic/l1Devict.trace
+$ ./csim-ref-partA -t traces-l1-basic/l1Devict.trace
 L1-d cache hits:0 misses:4 evictions:2
 L1-i cache hits:0 misses:0 evictions:0
 L2 cache hits:2 misses:3 evictions:0
 L3 cache hits:0 misses:3 evictions:0
 ```
+
+如果只想构建一级Cache：
+```bash
+$ ./csim-ref-partA -t ./traces-l1-basic/l1Devict.trace -c 1
+L1-d cache hits:0 misses:4 evictions:2
+L1-i cache hits:0 misses:0 evictions:0
+L2 cache hits:0 misses:0 evictions:0
+L3 cache hits:0 misses:0 evictions:0
+```
+
 
 使用`-n`开启快照，并且使用`-v`打印详细信息。
 
@@ -311,7 +325,7 @@ extern CacheLine l3ucache[L3_SET_NUM][L3_LINE_NUM];
 // csim.c
 ...
 
-  cacheInit(); // implemented in cache-impl.c
+  cacheInit(opt_cache_levels); // implemented in cache-impl.c
 
   char buf[BUF_SIZE];
   uint64_t addr;
@@ -344,14 +358,20 @@ extern CacheLine l3ucache[L3_SET_NUM][L3_LINE_NUM];
 ...
 ```
 
-???todo
-    修改`cacheInit`函数相关内容@blowinding
-
 具体而言，上述代码首先通过`cacheInit()`函数初始化cache，然后循环读取trace文件的每一行，并且提取出cache访问的一些必要信息，最后调用函数`cacheAccess()`真正访问cache，这两个函数定义在`cache-impl.c`中。
 
 和上述一样，在开始之前，你需要完全理解上述逻辑（不必是整个`csim.c`文件），特别是`cacheInit()`和`cacheAccess()`接口的定义，并且**禁止修改有关这个文件里面的任何内容**。
 
-`cacheInit`函数不接受任何参数，它的目标是对所有cache进行初始化。
+`cacheInit` 函数接受一个整型参数，用于指定当前需要构建的最大 Cache 层级。
+参数含义如下：
+
+- 传入 `1`：仅构建 L1 Cache（单级缓存）；
+- 传入 `2`：构建 L1 + L2 Cache（二级缓存）；
+- 传入 `3`：构建 L1 + L2 + L3 Cache（三级缓存）。
+
+也就是说，该参数指定的是 Cache 层级的**上限**，所有不超过该层级的 Cache 都会被一并初始化。
+调用该函数后，所有已构建的 cache line 的 Valid Bit 将被清零，
+Tag 字段与数据块内容也会被重置为初始状态。
 
 !!!note
     实际上，C语言的全局变量在被加载到内存时，如果没有初始化，会被**默认初始化为0**。因此，对于cacheInit函数，你可以什么都不做，但是这个函数放在这的目的就是为了告诉大家初始化的重要性。
@@ -364,7 +384,7 @@ extern CacheLine l3ucache[L3_SET_NUM][L3_LINE_NUM];
 
 最后，终于迎来了我们的主角，`cache-impl.c`。简单来说，你只需要完成这个文件预留的两个函数`cacheInit()`和`cacheAccess()`即可。
 
-为了给同学们自由的发挥空间，助教们仅给出了函数接口，而没有限制具体的实现方法。注意，在这个文件中，**你不可以修改上述两个函数的接口定义（也就是变量类型，个数等），也不可以修改有关cache的12个统计量的定义**，但是，你**可以在这个文件中添加任何需要的头文件，并且定义任何你需要的数据结构和函数**。
+为了给同学们自由的发挥空间，助教们仅给出了函数接口，而没有限制具体的实现方法。注意，在这个文件中，**你不可以修改上述两个函数的接口定义（也就是变量类型，个数等），也不可以修改有关cache的12个统计量的定义以及指示当前cache最大层级的全局变量定义**，但是，你**可以在这个文件中添加任何需要的头文件，并且定义任何你需要的数据结构和函数**。
 
 ```c
 // cache-impl.c
@@ -384,11 +404,12 @@ int l2_evictions = 0;
 int l3_hits = 0;
 int l3_misses = 0;
 int l3_evictions = 0;
+int cache_levels = 0;
 
 // you can add your own data structures and functions below
 
 // you are not allowed to modify the declaration of this function
-void cacheInit() {
+void cacheInit(int levels) {
   // TODO
 }
 
@@ -416,9 +437,13 @@ void cacheAccess(char op, uint64_t addr, uint32_t len) {
 9. 如果访问模式是**写操作**，设置dirty字段
 10. 返回
 
-如果看完上述描述，你仍然感觉一头雾水，不要担心，没有什么办法是比看一个例子更好的了。助教们因此特地准备了一份样例，其中cache和内存的组织结构如下（为了简单起见，这是全相联的cache）。其中，在一个cache set中，cache line的下标从左到右依次增大：
+如果看完上述描述仍然感到困惑，不用担心——理解 Cache 最好的方式莫过于亲手跟着一个例子走一遍。
+为此，助教们特地准备了一份演示样例，其 Cache 与内存的组织结构如下图所示。
 
-![cache sim](../assets/images/cache_sim.png)
+> 为便于说明，本样例采用**全相联（Fully Associative）**结构，
+> 且同一 Cache Set 内，cache line 的编号从左到右依次增大。
+
+![cache sim](../assets/images/cachelab/cache_sim.png)
 
 cache的访问trace依次为：
 
@@ -480,475 +505,246 @@ cache的访问trace依次为：
 
 ## 本地测试
 
-???todo
-    修改本地测试的方法@blowinding
+为合理控制难度梯度，Lab4A 将针对不同最大层级的 Cache 和不同类型的 Trace 分别进行测试，
+具体分值占比如下：
 
-Part A部分将会使用`traces-basic`，`traces-data-intensive`和`traces-hard`三个目录下的trace文件进行测试，**你同样不允许修改任何trace文件**，测试难度**由易到难**，具体要求为：
+- **1 级 Cache**：占总分的 **60%**，测试 Trace 包括 `traces-l1-basic`、`traces-mixed`、
+  `traces-data-intensive`、`traces-hard`
+- **2 级 Cache**：占总分的 **30%**，测试 Trace 包括 `traces-l2-basic`、`traces-mixed`、
+  `traces-data-intensive`、`traces-hard`
+- **3 级 Cache**：占总分的 **10%**，测试 Trace 包括 `traces-l3-basic`、`traces-mixed`、
+  `traces-data-intensive`、`traces-hard`
 
-- `traces-basic/`：里面包含了12个**human-made**的，和一些简单的综合trace。一般只有几行到几十行不等，覆盖了大部分cache的访问路径。每个trace 5分，正确通过这个目录中的所有trace之后，你将得到基本的60分。
-- `traces-data-intensive/`：里面的trace来自于10个常见的数据密集型负载，并且剔除了指令访问，只关注于数据访问，trace行数从几千行到十几万行不等。每个trace 3分，正确通过所有trace之后，你将得到额外的30分
-- `traces-hard`：里面的trace来自于10个真实的负载，包含了所有的指令和数据访问，trace行数从几万行到一百多万行不等。每个trace 1分，正确通过所有trace之后，你将得到最后的10分
+各类 Trace 的说明如下：
 
-我们会使用`./test-csim`来测试你实现的模拟器，简单来说，测试会依次运行所有trace文件，并且在一个文件的**所有指令访问结束之后**查看cache的有关统计量，这些统计量需要和我们的参考模拟器的输出完全相同。
+- **`traces-l1-basic/`、`traces-l2-basic/`、`traces-l3-basic/`**：
+  共包含 10 个**手工构造（human-made）**的 Trace，每个文件通常只有几行，
+  但覆盖了 Cache 访问的大多数典型路径，适合用于基础功能验证。
+
+- **`traces-mixed/`**：
+  包含 3 个综合型 Trace，行数略多于 `*-basic/` 系列，但不超过 200 行，
+  用于测试多种访问模式的混合场景。
+
+- **`traces-data-intensive/`**：
+  包含来自 10 个常见数据密集型负载的 Trace，已剔除指令访问，**仅保留数据访问**，
+  行数从数千行到十几万行不等，用于测试 Cache 在大规模数据访问下的表现。
+
+- **`traces-hard/`**：
+  包含来自 10 个真实负载的 Trace，**同时包含指令访问和数据访问**，
+  行数从数万行到一百多万行不等，是难度最高的测试集。
+
+各层级与各类 Trace 的详细分值映射如下表所示：
+
+| 层级 | 测试类型 | Trace 目录 | 分值 | 层级总分 |
+|------|----------|------------|------|----------|
+| L1 | Basic | `traces-l1-basic/` | 20 | 300 |
+| L1 | Mixed | `traces-mixed/` | 20 | 300 |
+| L1 | Data Intensive | `traces-data-intensive/` | 8 | 300 |
+| L1 | Hard | `traces-hard/` | 8 | 300 |
+| L2 | Basic | `traces-l2-basic/` | 10 | 150 |
+| L2 | Mixed | `traces-mixed/` | 10 | 150 |
+| L2 | Data Intensive | `traces-data-intensive/` | 5 | 150 |
+| L2 | Hard | `traces-hard/` | 4 | 150 |
+| L3 | Basic | `traces-l3-basic/` | 5 | 50 |
+| L3 | Mixed | `traces-mixed/` | 5 | 50 |
+| L3 | Data Intensive | `traces-data-intensive/` | 1 | 50 |
+| L3 | Hard | `traces-hard/` | 1 | 50 |
+
+测试使用 `./test-csim` 运行，可以添加`-h`参数查看该程序所能接受的命令行参数。
+
+```bash
+$ ./test-csim -h
+usage: ./test-csim [-hr] [-c <level>]
+options:
+  -h    print this help message.
+  -r    enable random test.
+  -c    specify the number of cache levels (1, 2, or 3) to test. Default is 3.
+```
+
+各参数的含义如下：
+
+- `-h`：可选参数，不附带值，输出帮助信息。
+- `-r`：可选参数，不附带值，开启随机测试模式。
+- `-c <level>`：可选参数，附带一个整数值，用于指定本次测试的最大 Cache 层级
+  （可选值为 `1`、`2`、`3`），默认值为 `3`，即默认构建并测试全部三级 Cache。
+
+测试过程中，脚本首先根据 `-c` 指定的最大层级构建对应的 Cache 结构，
+随后依次执行所有对应 Trace 文件中的访问序列。
+在**每个 Trace 文件的全部访问指令执行完毕后**，
+脚本会读取并比对 Cache 的三项统计量：
+**命中次数（hit）**、**缺失次数（miss）** 和 **替换次数（eviction）**，
+你的模拟器输出须与参考模拟器**完全一致**，方可得分。
 
 下面是一个参考的输出：
 
 ```bash
-$ ./test-csim
-Start testing basic traces...
-Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-basic/l3evict.trace                   15        PASS      IGNORE    5/5       
-traces-basic/mixed-2.trace                   90        PASS      IGNORE    5/5       
-traces-basic/l1Dhit.trace                    4         PASS      IGNORE    5/5       
-traces-basic/backinvalidation.trace          23        FAIL      IGNORE    0/5       
-  Details for trace <traces-basic/backinvalidation.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D         4        19        14         4        19        14
-      L1 I         0         0         0         0         0         0
-        L2        10        16         9        10        16        10
-        L3         6        16         8         6        16         8
-traces-basic/mixed-1.trace                   40        PASS      IGNORE    5/5       
-traces-basic/l1Devict.trace                  3         PASS      IGNORE    5/5       
-traces-basic/l2evict.trace                   7         PASS      IGNORE    5/5       
-traces-basic/l1missl2hit.trace               5         PASS      IGNORE    5/5       
-traces-basic/l1Ihit.trace                    5         PASS      IGNORE    5/5       
-traces-basic/l1Ievict.trace                  5         PASS      IGNORE    5/5       
-traces-basic/mixed-3.trace                   128       PASS      IGNORE    5/5       
-traces-basic/l1missl2missl3hit.trace         6         PASS      IGNORE    5/5       
----------------------------------------------------------------------------------
-Total Score: 55 / 60
-   11 passed,     1 failed,    12 total
+$ ./test-csim -c 2
 
-Start testing data-intensive traces...
-Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-data-intensive/multiply.trace         25347     PASS      IGNORE    3/3       
-traces-data-intensive/add.trace              16451     PASS      IGNORE    3/3       
-traces-data-intensive/convolve.trace         80397     PASS      IGNORE    3/3       
-traces-data-intensive/sort.trace             8369      PASS      IGNORE    3/3       
-traces-data-intensive/grep.trace             38328     FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/grep.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     37306      1066      1057     37306      1066      1058
-      L1 I         0         0         0         0         0         0
-        L2       310       863       829       310       863       831
-        L3       643       273       145       643       273       145
-traces-data-intensive/inner_product.trace    16388     PASS      IGNORE    3/3       
-traces-data-intensive/long.trace             267988    FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/long.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     14206      2182      2046    230444     56520     53285
-      L1 I         0         0         0         0         0         0
-        L2         1      2182      2150     47391     27797     24629
-        L3      1154      1029       901     33435     11645     11517
-traces-data-intensive/link_list.trace        49878     FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/link_list.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     23530     27047     26988     23528     27049     26986
-      L1 I         0         0         0         0         0         0
-        L2      9098     20867     20710      9088     20879     20710
-        L3     12219     10106      9978     12220     10121      9993
-traces-data-intensive/transpose.trace        6147      FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/transpose.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      2597      3550      3498      2597      3550      3499
-      L1 I         0         0         0         0         0         0
-        L2      2242      2332      2296      2242      2332      2300
-        L3      3056       292       164      3056       292       164
-traces-data-intensive/wc.trace               26311     FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/wc.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     25488       865       856     25488       865       857
-      L1 I         0         0         0         0         0         0
-        L2       276       698       664       276       698       666
-        L3       486       265       138       486       265       138
----------------------------------------------------------------------------------
-Total Score: 15 / 30
-    5 passed,     5 failed,    10 total
+========== Testing cache level 1 ==========
 
-Start testing hard traces...
+Start testing l1-basic traces...
 Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-hard/multiply.trace                   149382    PASS      IGNORE    1/1       
-traces-hard/add.trace                        94710     PASS      IGNORE    1/1       
-traces-hard/ls.trace                         56756     FAIL      IGNORE    0/1       
-  Details for trace <traces-hard/ls.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      1337      3412       806      1337      3412       802
-      L1 I     26377     25721     25666     26377     25721     25672
-        L2      1351     28190     28129      1351     28190     28158
-        L3     17768     10806     10678     17768     10806     10678
-traces-hard/convolve.trace                   1848393   FAIL      IGNORE    0/1       
-  Details for trace <traces-hard/convolve.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     54747     25650      3049     54747     25650      3048
-      L1 I   1084283    683713    683703   1084282    683714    683706
-        L2    667993     44315     44259    667974     44335     44263
-        L3     46182      1078       950     46202      1078       950
-traces-hard/sort.trace                       45978     PASS      IGNORE    1/1       
-traces-hard/grep.trace                       406467    FAIL      IGNORE    0/1       
-  Details for trace <traces-hard/grep.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     22544     15828       504     22544     15828       502
-      L1 I    184075    184064    184012    184075    184064    184016
-        L2    118023     81983     81941    118023     81983     81951
-        L3     79669      2416      2288     79669      2416      2288
-traces-hard/inner_product.trace              98329     PASS      IGNORE    1/1       
-traces-hard/link_list.trace                  249719    FAIL      IGNORE    0/1       
-  Details for trace <traces-hard/link_list.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     21914     27578     20747     21914     27578     20748
-      L1 I    150210     50708     46836    150210     50708     46850
-        L2      8714     72902     72720      8714     72902     72823
-        L3     55772     19960     19832     55772     19960     19832
-traces-hard/transpose.trace                  31990     FAIL      IGNORE    0/1       
-  Details for trace <traces-hard/transpose.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      2472      3675      3005      2472      3675      3005
-      L1 I     16309      9534      9195     16309      9534      9192
-        L2     10703      3530      3493     10700      3533      3495
-        L3      4242       307       179      4245       307       179
-traces-hard/wc.trace                         404114    FAIL      IGNORE    0/1       
-  Details for trace <traces-hard/wc.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      9093     17260       416      9093     17260       415
-      L1 I    155362    222441    222397    155362    222441    222399
-        L2    153542     86278     86243    153542     86278     86246
-        L3     84456      1929      1801     84456      1929      1801
----------------------------------------------------------------------------------
-Total Score: 4 / 10
-    4 passed,     6 failed,    10 total
+-----------------------------------------------------------------------------------
+traces-l1-basic/l1Ievict.trace               5         PASS      IGNORE    20/20     
+traces-l1-basic/l1Dhit.trace                 4         PASS      IGNORE    20/20     
+traces-l1-basic/l1Ihit.trace                 5         PASS      IGNORE    20/20     
+traces-l1-basic/l1Devict.trace               3         PASS      IGNORE    20/20     
+-----------------------------------------------------------------------------------
+Total Score: 80 / 80
+    4 passed,     0 failed,     4 total
 
-Testing cache simulator done. Total scores: 74 / 100
-Totally 2.795767 seconds passed.
+...
+
+========== Testing cache level 2 ==========
+
+Start testing l2-basic traces...
+Testcase                                     Lines     Result    Random    Score     
+-----------------------------------------------------------------------------------
+traces-l2-basic/l2evict.trace                7         PASS      IGNORE    10/10     
+traces-l2-basic/l1missl2hit.trace            5         PASS      IGNORE    10/10     
+traces-l2-basic/backinvalidation.trace       23        FAIL      IGNORE    0/10      
+  Details for trace <traces-l2-basic/backinvalidation.trace>
+                          Your simulator           Reference simulator
+     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
+      L1 D         4        19        17         4        19        15
+      L1 I         0         0         0         0         0         0
+        L2         7        19        15        10        16        12
+        L3         0         0         0         0         0         0
+-----------------------------------------------------------------------------------
+Total Score: 20 / 30
+    2 passed,     1 failed,     3 total
+
+Start testing mixed traces...
+Testcase                                     Lines     Result    Random    Score     
+-----------------------------------------------------------------------------------
+traces-mixed/mixed-3.trace                   128       FAIL      IGNORE    0/10      
+  Details for trace <traces-mixed/mixed-3.trace>
+                          Your simulator           Reference simulator
+     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
+      L1 D        35        93        85        35        93        82
+      L1 I        13        19        11        13        19        10
+        L2        57       109        77        59       107        75
+        L3         0         0         0         0         0         0
+traces-mixed/mixed-1.trace                   40        PASS      IGNORE    10/10     
+traces-mixed/mixed-2.trace                   90        FAIL      IGNORE    0/10      
+  Details for trace <traces-mixed/mixed-2.trace>
+                          Your simulator           Reference simulator
+     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
+      L1 D        20        60        52        20        60        52
+      L1 I        18        12         7        17        13         6
+        L2        71        43        15        71        44        16
+        L3         0         0         0         0         0         0
+-----------------------------------------------------------------------------------
+Total Score: 10 / 30
+    1 passed,     2 failed,     3 total
+
+...
+
+Testing cache simulator done. Total scores: 340 / 500
+Totally 2.823617 seconds passed.
 ```
 
-上述输出拿到了74分，下面具体解释一下这个输出结果：
+上述输出拿到了340分，下面具体解释一下这个输出结果：
 
-- 在**Result**一栏会显示对于某个trace的测试结果（PASS/FAIL）
-- 每一行代表一个trace测试，最右边一栏将会显示这个trace的得分
-- 你必须保证4个cache，共12个统计量和我们的参考模拟器的输出完全相同，才能得到这一个trace的分
-- Lines一列显示了每个trace文件的指令行数，比如`traces-hard`存在一个184万行的trace
-- 如果一个trace **FAIL**了，程序将会打印你的模拟器和参考模拟器的输出供你比对
-- 每通过一个`traces-*`目录的检查，程序将会打印这一部分的总得分。在三个部分的trace全部检查完毕后，会在最后打印part A总得分，这也将是你整个cachelab的最终得分
+- 本次测试指定 `-c 2`，因此将依次对最大层级为 **1 级**和 **2 级**的 Cache 进行测试。
+- **Result** 列显示每条 Trace 的测试结果（`PASS` / `FAIL`）。
+- 每一行对应一个 Trace 文件的测试，最右侧一列为该 Trace 的得分。
+- **Lines** 列显示每个 Trace 文件包含的访问指令总行数。
+- 只有当你的模拟器在该 Trace 上输出的**全部统计量**（共 4 个 Cache × 3 项 = 12 个统计量）
+  与参考模拟器**完全一致**时，才能获得该 Trace 的分数。
+- 若某条 Trace 测试 **FAIL**，程序将自动打印你的模拟器与参考模拟器的输出结果，供你逐项比对排查。
+- 每完成一个 `traces-*` 目录下所有 Trace 的测试，程序将打印该部分的小计得分；
+  待所有部分测试完毕后，程序将在末尾打印 **Part A 总得分**，即为本次 CacheLab 的最终得分。
 
 测试程序的输出还有Random一栏，这是用于随机测试，他将在每个trace中随机打入断点查看状态（实际上，现在的实现是**伪随机数**，也就是每次运行打入断点的位置是一样的），开启随机测试之后，你需要**额外**通过随机测试，才能拿到对应的分数。可以通过`-r（--random）`参数来开启：
 
 ```bash
-$ ./test-csim -r
-Start testing basic traces...
-Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-basic/l3evict.trace                   15        PASS      PASS      5/5       
-traces-basic/mixed-2.trace                   90        PASS      PASS      5/5       
-traces-basic/l1Dhit.trace                    4         PASS      PASS      5/5       
-traces-basic/backinvalidation.trace          23        FAIL      PASS      0/5       
-  Details for trace <traces-basic/backinvalidation.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D         4        19        14         4        19        14
-      L1 I         0         0         0         0         0         0
-        L2        10        16         9        10        16        10
-        L3         6        16         8         6        16         8
-traces-basic/mixed-1.trace                   40        PASS      PASS      5/5       
-traces-basic/l1Devict.trace                  3         PASS      PASS      5/5       
-traces-basic/l2evict.trace                   7         PASS      PASS      5/5       
-traces-basic/l1missl2hit.trace               5         PASS      PASS      5/5       
-traces-basic/l1Ihit.trace                    5         PASS      PASS      5/5       
-traces-basic/l1Ievict.trace                  5         PASS      PASS      5/5       
-traces-basic/mixed-3.trace                   128       PASS      PASS      5/5       
-traces-basic/l1missl2missl3hit.trace         6         PASS      PASS      5/5       
----------------------------------------------------------------------------------
-Total Score: 55 / 60
-   11 passed,     1 failed,    12 total
+$ ./test-csim -c 2 -r
 
-Start testing data-intensive traces...
-Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-data-intensive/multiply.trace         25347     PASS      PASS      3/3       
-traces-data-intensive/add.trace              16451     PASS      PASS      3/3       
-traces-data-intensive/convolve.trace         80397     PASS      PASS      3/3       
-traces-data-intensive/sort.trace             8369      PASS      PASS      3/3       
-traces-data-intensive/grep.trace             38328     FAIL      PASS      0/3       
-  Details for trace <traces-data-intensive/grep.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     37306      1066      1057     37306      1066      1058
-      L1 I         0         0         0         0         0         0
-        L2       310       863       829       310       863       831
-        L3       643       273       145       643       273       145
-traces-data-intensive/inner_product.trace    16388     PASS      PASS      3/3       
-traces-data-intensive/long.trace             267988    FAIL      FAIL      0/3       
-  Details for random_test of trace <traces-data-intensive/long.trace> at line 191914
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      4703       724       674    164840     40662     38417
-      L1 I         0         0         0         0         0         0
-        L2         1       724       692     34223     19817     17805
-        L3       382       343       215     24289      7880      7752
-  Details for trace <traces-data-intensive/long.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     14206      2182      2046    230444     56520     53285
-      L1 I         0         0         0         0         0         0
-        L2         1      2182      2150     47391     27797     24629
-        L3      1154      1029       901     33435     11645     11517
-traces-data-intensive/link_list.trace        49878     FAIL      FAIL      0/3       
-  Details for random_test of trace <traces-data-intensive/link_list.trace> at line 20095
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      9691     10766     10735      9691     10766     10735
-      L1 I         0         0         0         0         0         0
-        L2      4615      7901      7834      4613      7903      7834
-        L3      5536      3298      3170      5535      3301      3173
-  Details for trace <traces-data-intensive/link_list.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     23530     27047     26988     23528     27049     26986
-      L1 I         0         0         0         0         0         0
-        L2      9098     20867     20710      9088     20879     20710
-        L3     12219     10106      9978     12220     10121      9993
-traces-data-intensive/transpose.trace        6147      FAIL      FAIL      0/3       
-  Details for random_test of trace <traces-data-intensive/transpose.trace> at line 3741
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      1581      2161      2123      1581      2161      2124
-      L1 I         0         0         0         0         0         0
-        L2      1362      1421      1385      1362      1421      1389
-        L3      1831       203        75      1831       203        75
-  Details for trace <traces-data-intensive/transpose.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      2597      3550      3498      2597      3550      3499
-      L1 I         0         0         0         0         0         0
-        L2      2242      2332      2296      2242      2332      2300
-        L3      3056       292       164      3056       292       164
-traces-data-intensive/wc.trace               26311     FAIL      PASS      0/3       
-  Details for trace <traces-data-intensive/wc.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     25488       865       856     25488       865       857
-      L1 I         0         0         0         0         0         0
-        L2       276       698       664       276       698       666
-        L3       486       265       138       486       265       138
----------------------------------------------------------------------------------
-Total Score: 15 / 30
-    5 passed,     5 failed,    10 total
+========== Testing cache level 1 ==========
 
-Start testing hard traces...
+Start testing l1-basic traces...
 Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-hard/multiply.trace                   149382    PASS      PASS      1/1       
-traces-hard/add.trace                        94710     PASS      PASS      1/1       
-traces-hard/ls.trace                         56756     FAIL      FAIL      0/1       
-  Details for random_test of trace <traces-hard/ls.trace> at line 22142
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D       491      1367       343       491      1367       340
-      L1 I     10312      9995      9973     10312      9995      9977
-        L2       495     10995     10951       495     10995     10963
-        L3      6809      4309      4181      6809      4309      4181
-  Details for trace <traces-hard/ls.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      1337      3412       806      1337      3412       802
-      L1 I     26377     25721     25666     26377     25721     25672
-        L2      1351     28190     28129      1351     28190     28158
-        L3     17768     10806     10678     17768     10806     10678
-traces-hard/convolve.trace                   1848393   FAIL      FAIL      0/1       
-  Details for random_test of trace <traces-hard/convolve.trace> at line 1519250
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     45078     21104      2507     45078     21104      2506
-      L1 I    890860    562209    562199    890859    562210    562202
-        L2    549267     36461     36409    549252     36477     36413
-        L3     37983       893       765     37999       893       765
-  Details for trace <traces-hard/convolve.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     54747     25650      3049     54747     25650      3048
-      L1 I   1084283    683713    683703   1084282    683714    683706
-        L2    667993     44315     44259    667974     44335     44263
-        L3     46182      1078       950     46202      1078       950
-traces-hard/sort.trace                       45978     PASS      PASS      1/1       
-traces-hard/grep.trace                       406467    FAIL      FAIL      0/1       
-  Details for random_test of trace <traces-hard/grep.trace> at line 353639
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     19638     13505       249     19638     13505       247
-      L1 I    160211    160291    160267    160211    160291    160270
-        L2    103376     70431     70394    103376     70431     70399
-        L3     68999      1443      1315     68999      1443      1315
-  Details for trace <traces-hard/grep.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     22544     15828       504     22544     15828       502
-      L1 I    184075    184064    184012    184075    184064    184016
-        L2    118023     81983     81941    118023     81983     81951
-        L3     79669      2416      2288     79669      2416      2288
-traces-hard/inner_product.trace              98329     PASS      PASS      1/1       
-traces-hard/link_list.trace                  249719    FAIL      FAIL      0/1       
-  Details for random_test of trace <traces-hard/link_list.trace> at line 232167
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     21466     25232     19908     21466     25232     19909
-      L1 I    142794     43367     39495    142794     43367     39509
-        L2      8211     63222     63040      8211     63222     63143
-        L3     45883     19677     19549     45883     19677     19549
-  Details for trace <traces-hard/link_list.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     21914     27578     20747     21914     27578     20748
-      L1 I    150210     50708     46836    150210     50708     46850
-        L2      8714     72902     72720      8714     72902     72823
-        L3     55772     19960     19832     55772     19960     19832
-traces-hard/transpose.trace                  31990     FAIL      PASS      0/1       
-  Details for trace <traces-hard/transpose.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      2472      3675      3005      2472      3675      3005
-      L1 I     16309      9534      9195     16309      9534      9192
-        L2     10703      3530      3493     10700      3533      3495
-        L3      4242       307       179      4245       307       179
-traces-hard/wc.trace                         404114    FAIL      FAIL      0/1       
-  Details for random_test of trace <traces-hard/wc.trace> at line 39935
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D       888      1857       149       888      1857       148
-      L1 I     15451     21743     21727     15451     21743     21728
-        L2     14491      9116      9083     14491      9116      9084
-        L3      8363       760       632      8363       760       632
-  Details for trace <traces-hard/wc.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      9093     17260       416      9093     17260       415
-      L1 I    155362    222441    222397    155362    222441    222399
-        L2    153542     86278     86243    153542     86278     86246
-        L3     84456      1929      1801     84456      1929      1801
----------------------------------------------------------------------------------
-Total Score: 4 / 10
-    4 passed,     6 failed,    10 total
+-----------------------------------------------------------------------------------
+traces-l1-basic/l1Ievict.trace               5         PASS      PASS      20/20     
+traces-l1-basic/l1Dhit.trace                 4         PASS      PASS      20/20     
+traces-l1-basic/l1Ihit.trace                 5         PASS      PASS      20/20     
+traces-l1-basic/l1Devict.trace               3         PASS      PASS      20/20     
+-----------------------------------------------------------------------------------
+Total Score: 80 / 80
+    4 passed,     0 failed,     4 total
 
-Testing cache simulator done. Total scores: 74 / 100
-Totally 2.826064 seconds passed.
+Start testing mixed traces...
+Testcase                                     Lines     Result    Random    Score     
+-----------------------------------------------------------------------------------
+traces-mixed/mixed-3.trace                   128       PASS      PASS      20/20     
+traces-mixed/mixed-1.trace                   40        PASS      PASS      20/20     
+traces-mixed/mixed-2.trace                   90        PASS      PASS      20/20     
+...
+
+Total Score: 80 / 80
+   10 passed,     0 failed,    10 total
+
+========== Testing cache level 2 ==========
+
+Start testing l2-basic traces...
+Testcase                                     Lines     Result    Random    Score     
+-----------------------------------------------------------------------------------
+traces-l2-basic/l2evict.trace                7         PASS      PASS      10/10     
+traces-l2-basic/l1missl2hit.trace            5         PASS      PASS      10/10     
+traces-l2-basic/backinvalidation.trace       23        FAIL      FAIL      0/10      
+  Details for random_test of trace <traces-l2-basic/backinvalidation.trace> at line 21
+                          Your simulator           Reference simulator
+     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
+      L1 D         4        18        16         4        18        14
+      L1 I         0         0         0         0         0         0
+        L2         7        18        14        10        15        11
+        L3         0         0         0         0         0         0
+  Details for trace <traces-l2-basic/backinvalidation.trace>
+                          Your simulator           Reference simulator
+     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
+      L1 D         4        19        17         4        19        15
+      L1 I         0         0         0         0         0         0
+        L2         7        19        15        10        16        12
+        L3         0         0         0         0         0         0
+-----------------------------------------------------------------------------------
+Total Score: 20 / 30
+    2 passed,     1 failed,     3 total
+
+...
+
+Testing cache simulator done. Total scores: 340 / 500
+Totally 2.753828 seconds passed.
 ```
 
 开启随机测试之后，在Random一栏会显示PASS或者FAIL（否则为IGNORE），同时在FAIL时会相应的输出打入断点的那一行的详细信息，供你进行比对。
 
 !!!tip
-    - 你应该首先保证最基础的60分，也就是通过`traces-basic`目录下的所有trace，这些trace文件比较短，方便debug
+    - 你应该首先保证最基础的60分，也就是通过最大层级为1的所有测试，一级Cache的实现较为简单，你应当首先完成此任务
     - 你应该**灵活使用**前面介绍过的参数进行debug
     - 你可以将输出**重定向**到临时文件中以进行debug，注意，产生的输出文件可能会很大，尤其是开启了**快照**的情况下，请提前预留足够的磁盘空间（大约30-50G）
     - **禁止打表**，我们在最后测试的时候会**随机设置断点（会和你自己进行的随机测试设置的断点不同）**来检查你的程序是否正确，这也是测试输出的**Random**一栏，在开启Random测试后，你需要额外通过random的检查来拿到满分
     - 如果你想确保万无一失，可以使用`-vt`参数并和我们的参考模拟器进行比对，这会在每一次cache访问之后输出cache的状态（也就是12个统计量）。如果完全一致，那随机测试就一定可以通过
-    - 你需要注意超时的问题，我们在./test-csim中设置了30秒超时，也就是说，你的程序需要在30秒内通过**所有trace**的测试（一般正确实现的程序只需要**几秒钟**即可跑完所有测试），否则你只能得到在**超时之前PASS的trace**的分数。
+    - 你需要注意超时的问题，我们在./test-csim中设置了90秒超时，也就是说，你的程序需要在90秒内通过**所有trace**的测试（一般正确实现的程序只需要**几秒钟**即可跑完所有测试），否则你只能得到在**超时之前PASS的trace**的分数。
 
 下面是一个典型的超时结果：
 
 ```bash
 $ ./test-csim
-Start testing basic traces...
-Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-basic/l3evict.trace                   15        PASS      IGNORE    5/5       
-traces-basic/mixed-2.trace                   90        PASS      IGNORE    5/5       
-traces-basic/l1Dhit.trace                    4         PASS      IGNORE    5/5       
-traces-basic/backinvalidation.trace          23        FAIL      IGNORE    0/5       
-  Details for trace <traces-basic/backinvalidation.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D         4        19        14         4        19        14
-      L1 I         0         0         0         0         0         0
-        L2        10        16         9        10        16        10
-        L3         6        16         8         6        16         8
-traces-basic/mixed-1.trace                   40        PASS      IGNORE    5/5       
-traces-basic/l1Devict.trace                  3         PASS      IGNORE    5/5       
-traces-basic/l2evict.trace                   7         PASS      IGNORE    5/5       
-traces-basic/l1missl2hit.trace               5         PASS      IGNORE    5/5       
-traces-basic/l1Ihit.trace                    5         PASS      IGNORE    5/5       
-traces-basic/l1Ievict.trace                  5         PASS      IGNORE    5/5       
-traces-basic/mixed-3.trace                   128       PASS      IGNORE    5/5       
-traces-basic/l1missl2missl3hit.trace         6         PASS      IGNORE    5/5       
----------------------------------------------------------------------------------
-Total Score: 55 / 60
-   11 passed,     1 failed,    12 total
+========== Testing cache level 1 ==========
 
-Start testing data-intensive traces...
+Start testing l1-basic traces...
 Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-data-intensive/multiply.trace         25347     PASS      IGNORE    3/3       
-traces-data-intensive/add.trace              16451     PASS      IGNORE    3/3       
-traces-data-intensive/convolve.trace         80397     PASS      IGNORE    3/3       
-traces-data-intensive/sort.trace             8369      PASS      IGNORE    3/3       
-traces-data-intensive/grep.trace             38328     FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/grep.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     37306      1066      1057     37306      1066      1058
-      L1 I         0         0         0         0         0         0
-        L2       310       863       829       310       863       831
-        L3       643       273       145       643       273       145
-traces-data-intensive/inner_product.trace    16388     PASS      IGNORE    3/3       
-traces-data-intensive/long.trace             267988    FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/long.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     14206      2182      2046    230444     56520     53285
-      L1 I         0         0         0         0         0         0
-        L2         1      2182      2150     47391     27797     24629
-        L3      1154      1029       901     33435     11645     11517
-traces-data-intensive/link_list.trace        49878     FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/link_list.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     23530     27047     26988     23528     27049     26986
-      L1 I         0         0         0         0         0         0
-        L2      9098     20867     20710      9088     20879     20710
-        L3     12219     10106      9978     12220     10121      9993
-traces-data-intensive/transpose.trace        6147      FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/transpose.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D      2597      3550      3498      2597      3550      3499
-      L1 I         0         0         0         0         0         0
-        L2      2242      2332      2296      2242      2332      2300
-        L3      3056       292       164      3056       292       164
-traces-data-intensive/wc.trace               26311     FAIL      IGNORE    0/3       
-  Details for trace <traces-data-intensive/wc.trace>
-                          Your simulator           Reference simulator
-     Level      Hits    Misses    Evicts      Hits    Misses    Evicts
-      L1 D     25488       865       856     25488       865       857
-      L1 I         0         0         0         0         0         0
-        L2       276       698       664       276       698       666
-        L3       486       265       138       486       265       138
----------------------------------------------------------------------------------
-Total Score: 15 / 30
-    5 passed,     5 failed,    10 total
+-----------------------------------------------------------------------------------
+traces-l1-basic/l1Ievict.trace               5         PASS      IGNORE    20/20     
+traces-l1-basic/l1Dhit.trace                 4         PASS      IGNORE    20/20     
+traces-l1-basic/l1Ihit.trace                 5         PASS      IGNORE    20/20     
+TIMEOUT! Running tests over 90 seconds! Please check your program!
 
-Start testing hard traces...
-Testcase                                     Lines     Result    Random    Score     
----------------------------------------------------------------------------------
-traces-hard/multiply.trace                   149382    PASS      IGNORE    1/1       
-traces-hard/add.trace                        94710     PASS      IGNORE    1/1       
-TIMEOUT! Running tests over 30 seconds! Please check your program!
-
-Testing cache simulator done. Total scores: 72 / 100
+Testing cache simulator done. Total scores: 60 / 500
 ```
 
-上述程序在测试`traces-hard/`发生了超时，在超时之前一共获得了72分，超时后，无法继续后面的测试，因此总共得分72分。
+上述程序在测试`traces-l1-basic/`发生了超时，在超时之前一共获得了60分，超时后，无法继续后面的测试，因此总共得分60分。
 
 ## 思考题
 
