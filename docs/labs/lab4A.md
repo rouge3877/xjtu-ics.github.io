@@ -459,20 +459,31 @@ cache的访问trace依次为：
 - Write c
 - Read e
 - Read f
-- Read b
-- Read d
 
 !!!note
     在这个简单的例子中，你可以假设每个变量会占用整个cache line，并且三级cache的cache line大小是一样的。换句话说，读取变量a放入cache的时候，a的数据宽度和cache line的大小是一致的。
 
-我们**强烈建议**大家在正式开始写代码之前，自己把上述的过程**完整的画一遍**，特别是注意cache访问中**访问顺序（序号），LRU的设置，evict的过程，cache miss时的处理流程**，以及back invalidation的过程，完整的答案在[这里](../assets/files/cache.pdf)，有任何疑惑，欢迎上piazza进行提问。
+我们**强烈建议**大家在正式开始写代码之前，自己把上述的过程**完整的画一遍**，特别是注意cache访问中**访问顺序（序号），LRU的设置，evict的过程，cache miss时的处理流程**，以及back invalidation的过程，完整的答案在[这里](../assets/files/cache_trace.html)，有任何疑惑，欢迎上piazza进行提问。
 
 
 <!-- ???todo
     将这部分建议改为单独一章——代码设计策略@rouge3877 -->
 ## 代码设计策略
 
-在开始编码实验之前，我们希望在这里给出一些**可能有用**的建议。希望能够帮助你理清思路，避免常见陷阱。同时，这个lab中的cache的访问是一个十分优雅的过程，你可以分析其中的性质，并高度的凝练你的代码，参考解法仅包括大约**200-300**行代码
+在开始编码实验之前，我们希望在这里给出一些**可能有用**的建议。希望能够帮助你理清思路，避免常见陷阱。
+
+### 逻辑抽象
+
+事实上，每一个层级的cache对于内存读写指令的操作极为相似。具体而言，每一级cache对于内存读写指令的操作大致如下：
+
+- 获取某地址对应的tag,set,block信息
+- 根据以上信息寻找对应cache line
+- 根据寻找结果进行对应处理（hit, miss, evict）
+- 如果需要访问下一级cache，则传入需要处理的地址
+
+不难发现，上述过程可以抽象为一个**递归**算法，递归深度由设置的最大层级决定。
+
+当然实际的情况可能更复杂，需要使用递归的设计可能不止一处，上述说明旨在提示你可以利用**递归**算法大大简化你的代码。
 
 ### 可利用的简化假设
 
@@ -509,7 +520,13 @@ cache的访问trace依次为：
 
 ### 先Fetch后Evict
 
-- 在发生conflict miss时，你需要严格遵守**先fetch，后evict**的过程，即先访问下一级缓存或者内存得到数据所在的cache line，再选择需要evict的cache line，这**可能会影响LRU设置的顺序**。考虑一个例子，假如某个时刻全局时钟为10，L1发生conflict miss，L2 hit，你需要首先访问L2，由于L2 hit，设置L2中对应的cache line的LRU为10，然后将cache line返回给L1，假设L1需要evict的cache line是dirty的，你需要将其首先写回L2，这是100% hit的（为什么？），因此设置L2中对应的cache line的LRU为11，最后将需要的cache line放置在L1经evict空出的位置上，然后设置对应的LRU为12
+在发生conflict miss时，你需要严格遵守**先fetch，后evict**的过程，即先访问下一级缓存或者内存得到数据所在的cache line，再选择需要evict的cache line，这**可能会影响LRU设置的顺序**。
+
+考虑一个例子，假如某个时刻全局时钟为10，L1发生conflict miss，L2 hit，你需要：
+
+1. 首先访问L2，由于L2 hit，设置L2中对应的cache line的LRU为10
+2. 将cache line返回给L1，假设L1需要evict的cache line是dirty的，你需要将其首先写回L2；由于inclusive policy，这是100% hit的，因此设置L2中对应的cache line的LRU为11
+3. 最后将需要的cache line放置在L1经evict空出的位置上，然后设置对应的LRU为12
 
 ### Eviction与脏数据写回
 
@@ -522,7 +539,7 @@ cache的访问trace依次为：
 
 - 如果你需要从L2 evict某个cache line，假设这个cache line也存在于L1，那么你需要首先将L1中对应的cache line进行evict，这个过程叫做back invalidation。如果L1中的数据是dirty的，你需要首先将其写回L2，并且需要仔细处理L2的evict过程。
 - 如果你需要从L3 evict一个cache line，你也需要分别将L1和L2中对应的cache line进行evict。在此过程中，你需要**好好思考evict的顺序**，以保证inclusive的性质。
-- 注意，不同级别的缓存cache line的大小可能不一样，你在设计代码的时候需要考虑这会产生哪些影响，并仔细的处理相关流程。
+- 注意，不同级别的缓存cache line的大小可能不一样。具体而言，当较低级 Cache 的 block 大小大于较高级 Cache 时，在对较低级 Cache 中某一 cache line 执行 back invalidation 时，需要对该 cache line 所覆盖地址范围内的所有较高级 Cache 的 cache line 一并进行失效处理。
 
 ### 统计量更新
 
