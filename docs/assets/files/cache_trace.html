@@ -882,7 +882,7 @@ const flowArrows = {
 // State management
 let currentTraceIdx = 0;
 let currentStepIdx = {};  // traceIdx -> stepIdx
-let playIntervals = {};   // traceIdx -> interval
+let playIntervals = {};   // traceIdx -> timeout id
 let speeds = {};          // traceIdx -> speed ms
 
 // Compute intermediate states for a trace
@@ -1212,6 +1212,12 @@ function showArrow(traceIdx, key, direction, label) {
 
 // Navigation functions
 function showTrace(idx) {
+  // Carry speed from current trace to the target trace
+  const prevSpeed = speeds[currentTraceIdx];
+  speeds[idx] = prevSpeed;
+  const slider = document.querySelector(`#trace-${idx} .speed-control input[type="range"]`);
+  if (slider) slider.value = prevSpeed;
+
   currentTraceIdx = idx;
   document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.trace-card').forEach(c => c.classList.remove('visible'));
@@ -1253,7 +1259,7 @@ function stepLast(traceIdx) {
 function togglePlay(traceIdx) {
   const btn = document.getElementById(`play-btn-${traceIdx}`);
   if (playIntervals[traceIdx]) {
-    clearInterval(playIntervals[traceIdx]);
+    clearTimeout(playIntervals[traceIdx]);
     playIntervals[traceIdx] = null;
     btn.textContent = '▶';
     btn.classList.remove('playing');
@@ -1265,18 +1271,19 @@ function togglePlay(traceIdx) {
       currentStepIdx[traceIdx] = 0;
       renderStep(traceIdx, 0);
     }
-    playIntervals[traceIdx] = setInterval(() => {
+    function playTick() {
       const max = traces[traceIdx].substeps.length - 1;
       if (currentStepIdx[traceIdx] < max) {
         currentStepIdx[traceIdx]++;
         renderStep(traceIdx, currentStepIdx[traceIdx]);
+        playIntervals[traceIdx] = setTimeout(playTick, speeds[traceIdx]);
       } else {
-        clearInterval(playIntervals[traceIdx]);
         playIntervals[traceIdx] = null;
         btn.textContent = '▶';
         btn.classList.remove('playing');
       }
-    }, speeds[traceIdx]);
+    }
+    playIntervals[traceIdx] = setTimeout(playTick, speeds[traceIdx]);
   }
 }
 
