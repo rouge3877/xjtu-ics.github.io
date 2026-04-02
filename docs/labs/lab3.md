@@ -1,4 +1,4 @@
-# XJTU-ICS LAB 3: Attack Lab
+# XJTU-ICS Lab 3: Attack Lab
 
 ## 实验简介
 
@@ -23,31 +23,37 @@ Good luck and have fun! 😍
 ## 注意事项
 
 - 这是一个 **个人** 作业，不要尝试组队完成。
-
 - 每个学生的题目都是**独立且随机**的，请遵循学术诚信原则，不要抄袭或参与任何不诚实的行为。
-
 - 你需要将解题的答案写在`phase1~5.txt`5个文件中，文件命名请一定保证规范。并且可以通过`autograder.py`计算自己的得分。
-
 - 你在进行`attack`实验时不可以使用攻击跳过程序中的一些有效代码。具体来说，你在攻击时使用的字符串中嵌入的**用于`ret`指令跳转的地址**都应指向以下三个地址之一：
 
     - 函数`touch1`、 `touch2` 或`touch3` 的地址。
     - 你自己注入的代码的地址。
     - `gadget farm`中某个`gadget`的地址。
-
 - 你只能从文件`rtarget`中的函数`start_farm`和`end_farm`之间的地址去构造你的`gadget`。
-
 - 实验难度不小，**Please start early** and **ask more**
+- **不要使用各种AI Agent工具辅助实验**
 
 第一次阅读本文档时，可能觉着这些注意事项有些摸不着头脑，后续还会有对这些规则的详细说明。
 
 ## 开发环境准备
 
-前置要求：学习完[lab0](./lab0.md)，**不要尝试在windows环境下完成实验**
+仔细阅读[Lab0: Enviroment Setup](lab0.md)，根据自己的需求准备好linux开发环境和必备工具链（gcc，make，git，gdb等）。
 
-Linux is all you need.
+### 远程开发
 
-!!!warning
-    本次实验对编译器和标准库版本有强烈依赖，因此**强烈建议**所有同学在ics服务器上完成实验，本地开发可能会遇到各种各样的环境问题。
+已经拥有ICS-Server账号的同学，在自己的家目录下（`/home/username`），应该可以看到一个名为`attacklab-<number>-<target>`的目录：
+
+其中`<number>`是自己的学号，`<target>`是一个随机种子，确保实验的正确性和唯一性
+
+如果你缺少这个目录，请**私聊助教，并同时附上自己的学号**，助教会根据学号将实验资源分发给你。
+
+### 本地开发
+
+由于本次实验，每位同学的实验内容**均不相同**，因此本地开发的同学请**私聊助教，并同时附上自己的学号**，助教会根据学号将实验资源分发给你。
+
+!!!note
+    本次实验对编译器和标准库版本有强烈依赖，因此**强烈建议所有同学在ics服务器上完成实验**，本地开发可能会遇到各种各样的环境问题。
 
 ## 实验前置知识
 
@@ -95,21 +101,17 @@ void echo() {
 不出意外的话，在自己的家目录下面会存在一个名为`attacklab-<number>-<target>`的目录：
 
 ```bash
-linux$ cd
-linux$ ls
 ... attacklab-<number>-<target> ...
 ```
 
 !!!warning
-    如果你在任意一台服务器上缺少这个目录，请立刻联系助教寻求帮助
+    如果你在服务器上缺少这个目录，请立刻联系助教寻求帮助
 
 其中：
 
 - number字段是你的学号，请**仔细检查学号是否和自己的真实学号匹配**
-
 - target字段是你的学号生成的种子，用于确保每位同学学号的唯一性，这个字段与本次实验无关，**可以忽略**。为了满足同学的好奇心，种子的生成规则如下：
-
-    - 最高位是一个1-4以内的随机数，代表用的是哪一套题目（是的，助教们为每位学生准备了四套不同的题目（笑））
+    - 最高位是一个1-4以内的随机数，代表用的是哪一套题目（是的，助教们为每位学生准备了四套不同的题目（笑）），每套题目的**难度均一致**
     - 第2-3位是你自己的入学年份
     - 最后四位和学号的末四位相同
 
@@ -120,8 +122,12 @@ linux$ ls
 让我们进入正题，首先检查实验的完整性
 
 ```bash
-linux$ cd attacklab-<number>-<target>
-linux$ ls
+cd attacklab-<number>-<target>
+ls
+```
+
+一个典型结果如下：
+```bash
 README.txt  autograder.py  cookie.txt  ctarget  farm.c  hex2raw  lib  Makefile rtarget
 ```
 
@@ -167,7 +173,12 @@ unsigned getbuf()
 正常情况下，如果用户输入(即由`getbuf`读取)的字符串长度适中，`getbuf`将返回`1`，如下面的执行示例所示：
 
 ```bash
-linux$  ./ctarget                                                                                                             
+./ctarget                                                     
+```
+
+典型输出为：
+
+```bash
 Cookie: 0x6f9798cf
 Type string:123123
 No exploit.  Getbuf returned 0x1
@@ -179,7 +190,10 @@ Normal return
 如果用户输入的字符串过长，通常会出现段错误(`segmentation fault`)，这是因为你输入的字符串覆盖了栈中的有效信息。如下：
 
 ```bash
-linux$ ./ctarget                                                                                                              
+./ctarget                                                     
+```
+
+```bash
 Cookie: 0x59b997fa
 Type string:This is not a very interesting string, but it has the property ...
 Ouch!: You caused a segmentation fault!
@@ -225,7 +239,12 @@ FAIL
 具体的`linux`命令如下，下面给出了一个典型的运行结果（如果你的`phase1.txt`是正确的）：
 
 ```bash                                
-linux$ cat phase1.txt | ./hex2raw | ./ctarget        
+cat phase1.txt | ./hex2raw | ./ctarget
+```
+
+输出为：
+
+```bash
 Cookie: 0x59b997fa
 Type string:Touch1!: You called touch1()
 Valid solution for level 1 with target ctarget
@@ -258,13 +277,13 @@ PASS
 - 接下来，你可以使用`hex2raw`生成原始字符串文件，例如下面的命令生成了一个原始字符串文件`raw1.txt`：
 
 ``` bash
-linux$ ./hex2raw < phase1.txt > raw1.txt
+./hex2raw < phase1.txt > raw1.txt
 ```
 
 - 然后你可以使用`gdb`来调试
 
 ```bash
-linux$ gdb ctarget
+gdb ctarget
 ```
 
 - 在gdb调试时可以通过`run < raw1.txt`运行，进行调试：
@@ -276,7 +295,7 @@ linux$ gdb ctarget
 - 如何判断是否攻击成功呢？你可以将你生成的原始字符串文件作为`./ctarget`的输入，命令如下：
 
 ```bash
-linux$ ./ctarget < raw1.txt         
+./ctarget < raw1.txt         
 Cookie: 0x59b997fa
 Type string:Touch1!: You called touch1()
 Valid solution for level 1 with target ctarget
@@ -291,7 +310,12 @@ PASS
 - 最后可以使用`autograder.py`测试你的得分。
 
 ```bash
-linux$ python3 autograder.py
+python3 autograder.py
+```
+
+一个典型的输出为：
+
+```bash
 phase1 Score: 10 / 10
 phase2 Score: 0 / 20
 phase3 Score: 0 / 30
@@ -499,7 +523,10 @@ void setval_210(unsigned *p)
 为了方便评分，这里要求大家将解题过程所使用的十六进制数字形式的文件分别命名为`phase1~5.txt`，例如`phase3`的十六进制数字形式的答案你需要放在`phase3.txt`文件中，正确命名后，大家可以使用实验目录下的`autograder.py`文件计算自己的得分，一个典型的运行结果如下：
 
 ```bash
-linux$ python3 autograder.py
+python3 autograder.py
+```
+
+```bash
 phase1 Score: 10 / 10
 phase2 Score: 20 / 20
 phase3 Score: 30 / 30
@@ -510,19 +537,22 @@ Total Score: 90 / 100
 
 ### 代码提交
 
-大家在自己目录下运行`make submit`命令，会生成一个`username-handin.zip`文件，并且还会检测当前目录下是否存在`phasex.txt`。
+大家在自己目录下运行`make submit`命令，会生成一个`username-attacklab-handin.zip`文件，并且还会检测当前目录下是否存在`phasex.txt`。
 
 例如一位同学小L完成了`phase1~phase4`的攻击，同时小L没有写`phase5.txt`，一个典型的运行结果如下：
 
 ```bash
-linux$  make handin
+make submit
+```
+
+```bash
 Warning: phase5.txt does not exist and will be skipped
-packed to xxxxx-ics-handin.zip
+packed to xxxxx-ics-attacklab-handin.zip
 ```
 
 `Warning: phase5.txt does not exist and will be skipped`提示小L目录中没有`phase5.txt`，于是跳过了`phase5.txt`，完成打包。
 
-大家将这个`username-handin.zip`文件下载下来，在[在线学习平台](http://class.xjtu.edu.cn/)上的作业模块中，将该文件作为附件提交即可。
+大家将这个`username-attacklab-handin.zip`文件下载下来，在[在线学习平台](https://class.xjtu.edu.cn/course/115939/learning-activity/full-screen#/5660155)上的作业模块中，将该文件作为附件提交即可。
 
 ### 迟交
 在超过原定的截止时间后，我们仍然接受同学的提交。此时，在lab中能获得的最高分数将随着迟交天数的增加而减少，具体服从以下给分策略：
@@ -552,22 +582,22 @@ packed to xxxxx-ics-handin.zip
 
 - 你可以通过管道，让十六进制字节序列输入到 `hex2raw`，再通过管道将`hex2raw`的输出原始字符串输入到`ctarget`。
 
-```
-linux$ cat phase1.txt | ./hex2raw | ./ctarget
+```bash
+cat phase1.txt | ./hex2raw | ./ctarget
 ```
 
 - 你可以通过使用`I/O`重定向，将`phase1.txt`输入`hex2raw`，再将原始字符串(raw string)存储在文件`raw1.txt`中：
 
 ```bash
-linux$ ./hex2raw < phase1.txt > raw1.txt
-linux$ ./ctarget < raw1.txt
+./hex2raw < phase1.txt > raw1.txt
+./ctarget < raw1.txt
 ```
 
 - 你同样可以先将原始字符串（raw string）存入文件`raw1.txt`中，并使用`ctarget`或`rtarget`的`-i`参数读取文件内容作为输入：
 
 ```bash
-linux$ ./hex2raw < phase1.txt > raw1.txt
-linux$ ./ctarget -i raw1.txt
+./hex2raw < phase1.txt > raw1.txt
+./ctarget -i raw1.txt
 ```
 
 ### GDB调试
@@ -577,7 +607,10 @@ linux$ ./ctarget -i raw1.txt
 例如我想调试`ctarget`程序，在命令行输入`gdb ctarget`进入`gdb`调试。
 
 ```bash
-linux$ gdb ctarget                                            
+gdb ctarget
+```
+
+```bash                                       
 GNU gdb (Ubuntu 12.1-0ubuntu1~22.04) 12.1
 Copyright (C) 2022 Free Software Foundation, Inc.
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
@@ -651,8 +684,8 @@ movl %eax, %edx     # Copy lower 32 bits to %edx
 现在你可以汇编和反汇编该文件：
 
 ```bash
-linux$ gcc -c example.s
-linux$ objdump -d example.o > example.d
+gcc -c example.s
+objdump -d example.o > example.d
 ```
 
 生成的文件 `example.d`包含以下内容：
@@ -687,4 +720,4 @@ Disassembly of section .text:
 
 ---
 
-Copyright © 2025 XJTU ICS-TEAM
+Copyright © 2026 XJTU ICS-TEAM

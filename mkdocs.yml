@@ -103,7 +103,7 @@ nav:
     - "Lab 0: Tutorial and Environmental Preparation": labs/lab0.md
     - "Lab 1: Data Lab": labs/lab1.md
     - "Lab 2: Bomb Lab": labs/lab2.md
-    # - "Lab 3: Attack Lab": labs/lab3.md
+    - "Lab 3: Attack Lab": labs/lab3.md
     # - "Lab 4: Cache Lab":
     #   - "Before You Begin": labs/lab4.md
     #   - "Lab 4A: Cache-Sim": labs/lab4A.md
